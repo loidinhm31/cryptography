@@ -24,12 +24,11 @@ public class TcpChannel {
     }
 
     public Request receiveRequest() throws IOException {
-        String message = new String();
+        String message;
 
         if ((message = in.readLine()) != null) {
             System.out.println("Receive: " + message);
-            Request request = new Request(message);
-            return request;
+            return new Request(message);
         } else
             return null;
     }

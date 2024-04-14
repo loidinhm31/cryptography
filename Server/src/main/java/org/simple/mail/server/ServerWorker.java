@@ -1,12 +1,15 @@
 package org.simple.mail.server;
 
+import lombok.extern.slf4j.Slf4j;
 import org.simple.mail.util.Request;
 import org.simple.mail.util.Response;
 import org.simple.mail.util.TcpChannel;
 
 import java.io.IOException;
 import java.net.Socket;
+import java.util.Objects;
 
+@Slf4j
 public class ServerWorker implements Runnable {
     Socket socket;
 
@@ -16,25 +19,24 @@ public class ServerWorker implements Runnable {
 
     @Override
     public void run() {
-        // TODO Auto-generated method stub
         try {
             TcpChannel channel = new TcpChannel(socket);
             RequestProcessor processor = new RequestProcessor();
             while (true) {
-                Request request = new Request();
-                if ((request = channel.receiveRequest()) == null)
+                Request request;
+                if (Objects.isNull(request = channel.receiveRequest()))
                     break;
                 processor.setRequest(request);
                 if (processor.process() < 0)
                     break;
                 Response response = processor.getResponse();
-                if (response != null)
+                if (Objects.nonNull(response))
                     channel.sendResponse(processor.getResponse());
             }
             socket.close();
 
         } catch (IOException e) {
-            e.printStackTrace();
+            log.error("Unexpected error occurred", e);
         }
     }
 
