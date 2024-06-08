@@ -9,17 +9,18 @@ import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.Objects;
 
 public class RSAEchoServer {
     private static final int SERVER_PORT = 5000;
 
     public static void main(String[] args) {
+        boolean isSecure = Boolean.FALSE;
 
         try (ServerSocket servSocket = new ServerSocket(SERVER_PORT);
-             BufferedReader user = new BufferedReader(new InputStreamReader(System.in))
-        ) {
+             BufferedReader user = new BufferedReader(new InputStreamReader(System.in))) {
 
-            //Import server's private key
+            // Import server's private key
             RSAUtil rsaCryptor = new RSAUtil();
             RSAKeyParameters serverPrivateKey;
             String clientPublicKeyFile, serverPrivateKeyFile, keyPassword;
@@ -33,35 +34,39 @@ public class RSAEchoServer {
             while (true) {
                 System.out.println("Waiting connection...");
 
-                //Accept client connection
+                // Accept client connection
                 Socket connSocket = servSocket.accept();
                 System.out.println("Client:" + connSocket.getInetAddress().getHostAddress());
-/*				
-				//Import client's public key
-				RSAKeyParameters clientPublicKey;
-				System.out.print("Client public key file: ");
-				clientPublicKeyFile = user.readLine();
-				clientPublicKey = rsaCryptor.getPublicKey(clientPublicKeyFile);
-*/
+
+                RSAKeyParameters clientPublicKey = null;
+                if (isSecure) {
+                    // Import client's public key
+                    System.out.print("Client public key file: ");
+                    clientPublicKeyFile = user.readLine();
+                    clientPublicKey = rsaCryptor.getPublicKey(clientPublicKeyFile);
+                }
+
                 try (BufferedReader in = new BufferedReader(new InputStreamReader(connSocket.getInputStream()));
                      PrintWriter out = new PrintWriter(new OutputStreamWriter(connSocket.getOutputStream()))
                 ) {
                     while (true) {
                         String message, reply;
 
-                        //Receive message from client
+                        // Receive message from client
                         message = in.readLine();
                         if (message != null) {
-                            //Decrypt messsage with server's private key
+                            // Decrypt messsage with server's private key
                             message = rsaCryptor.decryptString(serverPrivateKey, message);
 
                             System.out.println("Receive from client:" + message);
                             reply = message.toUpperCase();
 
-                            //Encrypt message with client's public key
-                            //reply = rsaCryptor.encryptString(clientPublicKey, reply);
+                            if (isSecure && Objects.nonNull(clientPublicKey)) {
+                                // Encrypt message with client's public key
+                                reply = rsaCryptor.encryptString(clientPublicKey, reply);
+                            }
 
-                            //Send reply to client
+                            // Send reply to client
                             out.println(reply);
                             out.flush();
                         } else {
@@ -70,11 +75,11 @@ public class RSAEchoServer {
                         }
                     }
                 } catch (Exception e) {
-                    System.out.println(e.getMessage());
+                    e.printStackTrace();
                 }
             }
         } catch (Exception e) {
-            System.out.println(e.getMessage());
+            e.printStackTrace();
         }
     }
 }

@@ -9,16 +9,17 @@ import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.net.InetAddress;
 import java.net.Socket;
+import java.util.Objects;
 
 public class RSAEchoClient {
     private static final String SERVER_ADDR = "127.0.0.1";
     private static final int SERVER_PORT = 5000;
 
     public static void main(String[] args) {
+        boolean isSecure = Boolean.FALSE;
 
-        try (BufferedReader user = new BufferedReader(new InputStreamReader(System.in))
-        ) {
-            //Import server's public key
+        try (BufferedReader user = new BufferedReader(new InputStreamReader(System.in))) {
+            // Import server's public key
             RSAUtil rsaCryptor = new RSAUtil();
             RSAKeyParameters serverPublicKey;
             String serverPublicKeyFile;
@@ -26,22 +27,24 @@ public class RSAEchoClient {
             serverPublicKeyFile = user.readLine();
             serverPublicKey = rsaCryptor.getPublicKey(serverPublicKeyFile);
 
-            //Connect to server
+            // Connect to server
             InetAddress servAddr = InetAddress.getByName(SERVER_ADDR);
             try (Socket clientSocket = new Socket(servAddr, SERVER_PORT);
                  BufferedReader in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
                  PrintWriter out = new PrintWriter(new OutputStreamWriter(clientSocket.getOutputStream()))
             ) {
-/*			
-				//Import client's private key file
-				RSAKeyParameters clientPrivateKey;
-				String clientPrivateKeyFile,keyPassword;
-				System.out.print("Client private key file: ");
-				clientPrivateKeyFile = user.readLine();
-				System.out.print("Password for using private key: ");
-				keyPassword = user.readLine();
-				clientPrivateKey = rsaCryptor.getPrivateKey(clientPrivateKeyFile, keyPassword);
-*/
+
+                RSAKeyParameters clientPrivateKey = null;
+                if (isSecure) {
+                    // Import client's private key file
+                    String clientPrivateKeyFile, keyPassword;
+                    System.out.print("Client private key file: ");
+                    clientPrivateKeyFile = user.readLine();
+                    System.out.print("Password for using private key: ");
+                    keyPassword = user.readLine();
+                    clientPrivateKey = rsaCryptor.getPrivateKey(clientPrivateKeyFile, keyPassword);
+                }
+
                 String message, reply;
 
                 while (true) {
@@ -50,18 +53,20 @@ public class RSAEchoClient {
                     if (message.length() == 0)
                         break;
 
-                    //Encrypt plain message with server's public key
+                    // Encrypt plain message with server's public key
                     message = rsaCryptor.encryptString(serverPublicKey, message);
 
-                    //Send message to server
+                    // Send message to server
                     out.println(message);
                     out.flush();
 
-                    //Receive message from server
+                    // Receive message from server
                     reply = in.readLine();
 
-                    //Decrypt message with client's private key
-                    //reply = rsaCryptor.decryptString(clientPrivateKey, reply);
+                    if (isSecure && Objects.nonNull(clientPrivateKey)) {
+                        // Decrypt message with client's private key
+                        reply = rsaCryptor.decryptString(clientPrivateKey, reply);
+                    }
 
                     System.out.println("Reply from Server:" + reply);
                 }

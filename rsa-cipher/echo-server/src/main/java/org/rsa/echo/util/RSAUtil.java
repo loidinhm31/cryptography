@@ -19,7 +19,8 @@ import org.bouncycastle.util.encoders.Base64;
 
 import java.io.FileReader;
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
+import java.nio.charset.StandardCharsets;
+import java.util.Objects;
 
 
 public class RSAUtil {
@@ -28,7 +29,9 @@ public class RSAUtil {
             throws IOException, OperatorCreationException, PKCSException {
         RSAKeyParameters privateKey = null;
         PrivateKeyInfo keyInfo = null;
-        FileReader reader = new FileReader(keyFile);
+        FileReader reader = new FileReader(
+                Objects.requireNonNull(this.getClass().getClassLoader().getResource(keyFile)).getPath()
+        );
         PEMParser pemParser = new PEMParser(reader);
         Object keyPair = pemParser.readObject();
         if (keyPair instanceof PKCS8EncryptedPrivateKeyInfo) {
@@ -40,7 +43,9 @@ public class RSAUtil {
         } else if (keyPair instanceof PrivateKeyInfo) {
             keyInfo = (PrivateKeyInfo) keyPair;
         }
-        privateKey = (RSAKeyParameters) PrivateKeyFactory.createKey(keyInfo);
+
+        if (Objects.nonNull(keyInfo))
+            privateKey = (RSAKeyParameters) PrivateKeyFactory.createKey(keyInfo);
 
         pemParser.close();
         return privateKey;
@@ -55,14 +60,14 @@ public class RSAUtil {
             publicKey = (RSAKeyParameters) PublicKeyFactory.createKey(
                     certificate.getSubjectPublicKeyInfo());
         } catch (IOException e) {
-            System.out.println(e.getMessage());
+            e.printStackTrace();
         }
         return publicKey;
     }
 
-    public String encryptString(RSAKeyParameters publicKey, String plainText) throws InvalidCipherTextException, UnsupportedEncodingException {
+    public String encryptString(RSAKeyParameters publicKey, String plainText) throws InvalidCipherTextException {
         String cipherText;
-        cipherText = Base64.toBase64String(encryptBytes(publicKey, plainText.getBytes("UTF-8")));
+        cipherText = Base64.toBase64String(encryptBytes(publicKey, plainText.getBytes(StandardCharsets.UTF_8)));
         return cipherText;
     }
 
@@ -72,9 +77,9 @@ public class RSAUtil {
         return cipher.processBlock(plainBytes, 0, plainBytes.length);
     }
 
-    public String decryptString(RSAKeyParameters privateKey, String cipherText) throws UnsupportedEncodingException, InvalidCipherTextException {
+    public String decryptString(RSAKeyParameters privateKey, String cipherText) throws InvalidCipherTextException {
         byte[] cipherBytes = Base64.decode(cipherText);
-        return new String(decryptBytes(privateKey, cipherBytes), "UTF-8");
+        return new String(decryptBytes(privateKey, cipherBytes), StandardCharsets.UTF_8);
     }
 
     public byte[] decryptBytes(RSAKeyParameters privateKey, byte[] cipherBytes) throws InvalidCipherTextException {
