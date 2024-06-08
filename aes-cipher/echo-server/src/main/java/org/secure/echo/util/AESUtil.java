@@ -10,6 +10,7 @@ import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.PBEKeySpec;
 import javax.crypto.spec.SecretKeySpec;
 import java.io.UnsupportedEncodingException;
+import java.nio.charset.StandardCharsets;
 import java.security.GeneralSecurityException;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
@@ -55,7 +56,7 @@ public class AESUtil {
 
     public String encryptString(SecretKey key, String plainText) throws UnsupportedEncodingException, GeneralSecurityException {
         String cipherText;
-        cipherText = Base64.toBase64String(encryptBytes(key, plainText.getBytes("UTF-8")));
+        cipherText = Base64.toBase64String(encryptBytes(key, plainText.getBytes(StandardCharsets.UTF_8)));
         return cipherText;
     }
 
@@ -73,6 +74,6 @@ public class AESUtil {
 
     public String decryptString(SecretKey key, String cipherText) throws UnsupportedEncodingException, GeneralSecurityException {
         byte[] cipherBytes = Base64.decode(cipherText);
-        return new String(decryptBytes(key, cipherBytes), "UTF-8");
+        return new String(decryptBytes(key, cipherBytes), StandardCharsets.UTF_8);
     }
 }

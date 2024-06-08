@@ -1,7 +1,33 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="Encoding">
+    <file url="file://$PROJECT_DIR$/echo-client/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/echo-client/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/echo-server/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/echo-server/src/main/resources" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/src/main/java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/../hmac/rsa-sig-forward-server/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/../hmac/rsa-sig-forward-server/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/../hmac/rsa-sig-receiver-client/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/../hmac/rsa-sig-receiver-client/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/../hmac/rsa-sig-sender-client/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/../hmac/rsa-sig-sender-client/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/../hmac/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/../hmac/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/../rsa-cipher/echo-client/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/../rsa-cipher/echo-client/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/../rsa-cipher/echo-server/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/../rsa-cipher/echo-server/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/../rsa-cipher/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/../rsa-cipher/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/../shift-ciper/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/../shift-ciper/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/../simple-mail/Client/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/../simple-mail/Client/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/../simple-mail/Server/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/../simple-mail/Server/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/../simple-mail/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/../simple-mail/src/main/resources" charset="UTF-8" />
   </component>
 </project>
