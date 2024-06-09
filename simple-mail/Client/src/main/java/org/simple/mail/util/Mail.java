@@ -1,9 +1,12 @@
 package org.simple.mail.util;
 
+import lombok.Getter;
+
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
+@Getter
 public class Mail {
     public final static String FROM = "FROM: ";
     public final static String TO = "TO: ";
@@ -20,9 +23,9 @@ public class Mail {
         StringBuilder builder = new StringBuilder();
         DateFormat dateFormat = new SimpleDateFormat("yyyy-mm-dd");
 
-        builder.append(FROM + sender + "\n");
-        builder.append(TO + recipient + "\n");
-        builder.append(DATE + dateFormat.format(receivedTime) + "\n");
+        builder.append(FROM).append(sender).append("\n");
+        builder.append(TO).append(recipient).append("\n");
+        builder.append(DATE).append(dateFormat.format(receivedTime)).append("\n");
         builder.append(body);
 
         return builder.toString();
@@ -33,32 +36,16 @@ public class Mail {
 
     }
 
-    public String getSender() {
-        return this.sender;
-    }
-
     public void setSender(String sender) {
         this.sender = sender.toLowerCase();
-    }
-
-    public String getRecipient() {
-        return this.recipient;
     }
 
     public void setRecipient(String recipient) {
         this.recipient = recipient.toLowerCase();
     }
 
-    public String getBody() {
-        return this.body;
-    }
-
     public void setBody(String body) {
         this.body = body;
-    }
-
-    public Date getReceivedTime() {
-        return this.receivedTime;
     }
 
 }

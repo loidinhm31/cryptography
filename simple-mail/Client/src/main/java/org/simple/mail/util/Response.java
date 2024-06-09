@@ -25,7 +25,7 @@ public class Response implements IMessage {
     public String craftToString() {
         StringBuilder builder = new StringBuilder();
         builder.append(this.code);
-        if (this.notice.length() > 0) {
+        if (!this.notice.isEmpty()) {
             builder.append(IMessage.DEMILITER);
             builder.append(this.notice);
         }

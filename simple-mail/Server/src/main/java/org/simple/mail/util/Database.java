@@ -9,9 +9,10 @@ public class Database {
     public final static String DB_NAME = "maildb";
     public final static String ACCOUNT = "mailadmin";
     public final static String PASSWORD = "123456";
-    private final static String URL_PREFIX = "jdbc:mysql://localhost:6688/";
+    private final static String URL_PREFIX = "jdbc:mysql://localhost:3306/";
+
     Statement stmt;
-    private Connection conn;
+    private final Connection conn;
 
     public Database(String dbName, String account, String password) throws SQLException {
         StringBuilder url = new StringBuilder(URL_PREFIX);
@@ -43,8 +44,7 @@ public class Database {
     public Mail retrieveMail(String recipient, int id) {
         Mail mail = null;
         String query = "SELECT * FROM tbl_mails WHERE recipient = ? AND id = ?;";
-        try (PreparedStatement selectStmt = conn.prepareStatement(query)
-        ) {
+        try (PreparedStatement selectStmt = conn.prepareStatement(query)) {
             selectStmt.setString(1, recipient);
             selectStmt.setInt(2, id);
             ResultSet rs = selectStmt.executeQuery();

@@ -1,8 +1,12 @@
 package org.simple.mail.util;
 
+import lombok.Getter;
+
 public class Request {
+    @Getter
     private String raw;
     private String command;
+    @Getter
     private String parameter;
 
     public Request() {
@@ -29,27 +33,19 @@ public class Request {
         return builder.toString();
     }
 
-    public String getRaw() {
-        return this.raw;
-    }
-
     public String getCommand() {
         return this.command.toUpperCase();
-    }
-
-    public String getParameter() {
-        return this.parameter;
     }
 
     private void parse(String messageString) {
         messageString = messageString.trim();
         int firstSpace = messageString.indexOf(IMessage.DEMILITER);
-        //Command has parameters
+        // Command has parameters
         if (firstSpace > 0) {
             command = messageString.substring(0, firstSpace);
             parameter = messageString.substring(firstSpace + 1).trim();
         }
-        //Command has not parameters
+        // Command has not parameters
         else {
             command = messageString;
             parameter = "";

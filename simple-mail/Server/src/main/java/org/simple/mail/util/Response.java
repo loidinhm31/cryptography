@@ -13,6 +13,7 @@ public class Response implements IMessage {
     public final static String WRONG_SYNTAX = "Wrong syntax";
     public final static String BAD_SEQUENCE = "Bad sequence of commands";
 
+
     private String code;
     private String notice;
 

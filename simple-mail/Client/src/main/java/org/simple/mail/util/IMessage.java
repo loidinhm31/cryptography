@@ -1,9 +1,9 @@
 package org.simple.mail.util;
 
 public interface IMessage {
-    public final static char DEMILITER = ' ';
+    char DEMILITER = ' ';
 
-    public String craftToString();
+    String craftToString();
 
-    public void parse(String str);
+    void parse(String str);
 }

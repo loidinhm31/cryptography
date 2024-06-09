@@ -1,5 +1,7 @@
 package org.simple.mail.server;
 
+import lombok.Getter;
+import lombok.Setter;
 import org.simple.mail.util.*;
 
 import java.sql.SQLException;
@@ -9,8 +11,11 @@ import java.util.ArrayList;
 import java.util.Date;
 
 public class RequestProcessor {
+    @Setter
     private Request request;
+    @Getter
     private Response response;
+
     private Mail mail;
     private Session session;
     private Database db;
@@ -20,6 +25,7 @@ public class RequestProcessor {
         request = new Request();
         try {
             db = new Database(Database.DB_NAME, Database.ACCOUNT, Database.PASSWORD);
+            System.out.println("Connected to " + Database.DB_NAME);
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -143,7 +149,7 @@ public class RequestProcessor {
         if (line.compareTo(Mail.END_MAIL) != 0) {
             response = null;
             StringBuilder builder = new StringBuilder();
-            builder.append(mail.getBody() + "\n");
+            builder.append(mail.getBody()).append("\n");
             builder.append(line);
             mail.setBody(builder.toString());
         } else {
@@ -154,11 +160,4 @@ public class RequestProcessor {
         }
     }
 
-    public void setRequest(Request req) {
-        this.request = req;
-    }
-
-    public Response getResponse() {
-        return this.response;
-    }
 }

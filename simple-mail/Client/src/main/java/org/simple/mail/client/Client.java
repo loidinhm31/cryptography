@@ -1,6 +1,5 @@
 package org.simple.mail.client;
 
-import lombok.extern.slf4j.Slf4j;
 import org.simple.mail.util.Request;
 
 import java.io.BufferedReader;
@@ -10,7 +9,6 @@ import java.net.InetAddress;
 import java.net.Socket;
 import java.net.UnknownHostException;
 
-@Slf4j
 public class Client {
     private static final String SERVER_ADDR = "127.0.0.1";
     private static final int SERVER_PORT = 5000;
@@ -33,10 +31,11 @@ public class Client {
                 } while (processor.process() >= 0);
 
             } catch (IOException e) {
-                log.error("Unexpected error occurred", e);
-            }
+                System.out.println("Unexpected error occurred");
+                e.printStackTrace();            }
         } catch (UnknownHostException e1) {
-            log.error("Unexpected error occurred", e1);
+            System.out.println("Unexpected error occurred");
+            e1.printStackTrace();
         }
         System.out.println("QUIT!!!");
     }

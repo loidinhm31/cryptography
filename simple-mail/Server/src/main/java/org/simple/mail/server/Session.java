@@ -1,5 +1,8 @@
 package org.simple.mail.server;
 
+import lombok.Getter;
+
+@Getter
 public class Session {
     public final static int USER_UNIDENTIFIED = 0;
     public final static int USER_IDENTIFIED = 1;
@@ -13,17 +16,9 @@ public class Session {
         this.status = USER_UNIDENTIFIED;
     }
 
-    public String getUser() {
-        return this.user;
-    }
-
     public void setUser(String user) {
         this.user = user;
         this.status = USER_IDENTIFIED;
-    }
-
-    public int getStatus() {
-        return this.status;
     }
 
     public void setStatus(int status) {

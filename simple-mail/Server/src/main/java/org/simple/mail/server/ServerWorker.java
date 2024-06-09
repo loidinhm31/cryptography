@@ -1,6 +1,5 @@
 package org.simple.mail.server;
 
-import lombok.extern.slf4j.Slf4j;
 import org.simple.mail.util.Request;
 import org.simple.mail.util.Response;
 import org.simple.mail.util.TcpChannel;
@@ -9,7 +8,6 @@ import java.io.IOException;
 import java.net.Socket;
 import java.util.Objects;
 
-@Slf4j
 public class ServerWorker implements Runnable {
     Socket socket;
 
@@ -36,7 +34,8 @@ public class ServerWorker implements Runnable {
             socket.close();
 
         } catch (IOException e) {
-            log.error("Unexpected error occurred", e);
+            System.out.println("Unexpected error occurred");
+            e.printStackTrace();
         }
     }
 

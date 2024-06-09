@@ -6,8 +6,8 @@ import java.net.Socket;
 
 public class TcpChannel {
     private Socket socket;
-    private BufferedReader in;
-    private PrintWriter out;
+    private final BufferedReader in;
+    private final PrintWriter out;
 
     public TcpChannel(Socket s) throws IOException {
         this.socket = s;
@@ -32,9 +32,9 @@ public class TcpChannel {
     }
 
     public String receiveLine() throws IOException {
-        String line = null;
+        String line;
         if ((line = in.readLine()) != null)
             return (line + "\n");
-        return line;
+        return null;
     }
 }

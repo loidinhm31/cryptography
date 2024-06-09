@@ -1,5 +1,6 @@
 package org.simple.mail.client;
 
+import lombok.Setter;
 import org.simple.mail.util.*;
 
 import java.io.BufferedReader;
@@ -9,7 +10,9 @@ import java.net.Socket;
 
 public class UserProcessor {
     private Socket socket;
+    @Setter
     private Request request;
+    @Setter
     private Response response;
     private TcpChannel channel;
 
@@ -30,14 +33,6 @@ public class UserProcessor {
             handleResponse(command);
             return 0;
         } else return -1;
-    }
-
-    public void setResponse(Response res) {
-        this.response = res;
-    }
-
-    public void setRequest(Request req) {
-        this.request = req;
     }
 
     private void handleResponse(String command) throws IOException {
@@ -73,7 +68,7 @@ public class UserProcessor {
         int numberOfMail = Integer.parseInt(response.getNotice());
         for (int i = 0; i < numberOfMail; i++)
             builder.append(channel.receiveLine());
-        System.out.println(builder.toString());
+        System.out.println(builder);
     }
 
     private void doRetrieveResponse() throws IOException {
@@ -85,6 +80,6 @@ public class UserProcessor {
             builder.append(line);
             leftBytes = leftBytes - line.length();
         }
-        System.out.println(builder.toString());
+        System.out.println(builder);
     }
 }
