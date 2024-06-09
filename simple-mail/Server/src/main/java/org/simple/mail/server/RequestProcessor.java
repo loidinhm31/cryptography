@@ -4,10 +4,18 @@ import lombok.Getter;
 import lombok.Setter;
 import org.simple.mail.util.*;
 
+import javax.crypto.Cipher;
+import javax.crypto.spec.SecretKeySpec;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.security.KeyFactory;
+import java.security.PrivateKey;
+import java.security.spec.PKCS8EncodedKeySpec;
 import java.sql.SQLException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Base64;
 import java.util.Date;
 
 public class RequestProcessor {
@@ -17,7 +25,7 @@ public class RequestProcessor {
     private Response response;
 
     private Mail mail;
-    private Session session;
+    private final Session session;
     private Database db;
 
     public RequestProcessor() {
@@ -154,10 +162,41 @@ public class RequestProcessor {
             mail.setBody(builder.toString());
         } else {
             response = new Response();
-            response.setContent(Response.SUCCESS, Response.DELIVERY_SUCCESS);
-            db.insertMail(mail);
+            try {
+                String decryptedEmail = decryptEmail(mail.getBody());
+                mail.setBody(decryptedEmail);
+                db.insertMail(mail);
+                response.setContent(Response.SUCCESS, Response.DELIVERY_SUCCESS);
+            } catch (Exception e) {
+                response.setContent(Response.ERROR, "Decryption failed");
+            }
             session.setStatus(Session.USER_IDENTIFIED);
         }
+    }
+
+    private String decryptEmail(String encryptedContent) throws Exception {
+        String[] parts = encryptedContent.split(":");
+        String encryptedEmail = parts[0];
+        String encryptedAesKey = parts[1];
+
+        // Decrypt AES key with RSA private key
+        byte[] privateKeyBytes = Files.readAllBytes(Paths.get("path/to/private/key.pem"));
+        PKCS8EncodedKeySpec spec = new PKCS8EncodedKeySpec(privateKeyBytes);
+        KeyFactory keyFactory = KeyFactory.getInstance("RSA");
+        PrivateKey privateKey = keyFactory.generatePrivate(spec);
+
+        Cipher rsaCipher = Cipher.getInstance("RSA");
+        rsaCipher.init(Cipher.DECRYPT_MODE, privateKey);
+        byte[] aesKeyBytes = rsaCipher.doFinal(Base64.getDecoder().decode(encryptedAesKey));
+
+        SecretKeySpec aesKey = new SecretKeySpec(aesKeyBytes, "AES");
+
+        // Decrypt email with AES key
+        Cipher aesCipher = Cipher.getInstance("AES");
+        aesCipher.init(Cipher.DECRYPT_MODE, aesKey);
+        byte[] decryptedEmailBytes = aesCipher.doFinal(Base64.getDecoder().decode(encryptedEmail));
+
+        return new String(decryptedEmailBytes);
     }
 
 }
