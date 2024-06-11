@@ -167,30 +167,4 @@ public class RequestProcessor {
             session.setStatus(Session.USER_IDENTIFIED);
         }
     }
-
-    private String decryptEmail(String encryptedContent) throws Exception {
-        String[] parts = encryptedContent.split(":");
-        String encryptedEmail = parts[0];
-        String encryptedAesKey = parts[1];
-
-        // Decrypt AES key with RSA private key
-        byte[] privateKeyBytes = Files.readAllBytes(Paths.get("path/to/private/key.pem"));
-        PKCS8EncodedKeySpec spec = new PKCS8EncodedKeySpec(privateKeyBytes);
-        KeyFactory keyFactory = KeyFactory.getInstance("RSA");
-        PrivateKey privateKey = keyFactory.generatePrivate(spec);
-
-        Cipher rsaCipher = Cipher.getInstance("RSA");
-        rsaCipher.init(Cipher.DECRYPT_MODE, privateKey);
-        byte[] aesKeyBytes = rsaCipher.doFinal(Base64.getDecoder().decode(encryptedAesKey));
-
-        SecretKeySpec aesKey = new SecretKeySpec(aesKeyBytes, "AES");
-
-        // Decrypt email with AES key
-        Cipher aesCipher = Cipher.getInstance("AES");
-        aesCipher.init(Cipher.DECRYPT_MODE, aesKey);
-        byte[] decryptedEmailBytes = aesCipher.doFinal(Base64.getDecoder().decode(encryptedEmail));
-
-        return new String(decryptedEmailBytes);
-    }
-
 }

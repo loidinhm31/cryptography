@@ -2,17 +2,19 @@ package org.simple.mail.client;
 
 import lombok.Setter;
 import org.bouncycastle.crypto.CryptoException;
+import org.bouncycastle.crypto.InvalidCipherTextException;
 import org.bouncycastle.crypto.params.KeyParameter;
 import org.bouncycastle.crypto.params.RSAKeyParameters;
 import org.bouncycastle.operator.OperatorCreationException;
 import org.bouncycastle.pkcs.PKCSException;
+import org.bouncycastle.util.encoders.Base64;
 import org.simple.mail.util.*;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.UnsupportedEncodingException;
 import java.net.Socket;
-import java.util.Base64;
 import java.util.Objects;
 
 public class UserProcessor {
@@ -96,7 +98,7 @@ public class UserProcessor {
         System.out.println(builder);
     }
 
-    private void doRetrieveResponse() throws IOException {
+    private void doRetrieveResponse() throws IOException, InvalidCipherTextException, OperatorCreationException, PKCSException {
         StringBuilder builder = new StringBuilder();
         String line;
         int leftBytes = Integer.parseInt(response.getNotice()) + 1;
@@ -107,26 +109,19 @@ public class UserProcessor {
         }
         String emailContent = builder.toString();
 
-        // Parse the email components
-        String[] lines = emailContent.split("\n");
-        String sigPart = null;
-        String keyPart = null;
-        String bodyPart = null;
-        for (String l : lines) {
-            if (l.startsWith(SIG_HEADER)) {
-                sigPart = l.substring(SIG_HEADER.length()).trim();
-            } else if (l.startsWith(KEY)) {
-                keyPart = l.substring(KEY.length()).trim();
-            } else if (l.startsWith(BODY)) {
-                bodyPart = l.substring(BODY.length()).trim();
-            }
-        }
+        BufferedReader user = new BufferedReader(new InputStreamReader(System.in));
 
-        // Verify signature
+        System.out.println("Path to sender's public key:");
+        String senderPublicKeyPath = user.readLine();
 
-        // Decrypt AES key
+        System.out.println("Path to your private key:");
+        String userPrivateKeyPath = user.readLine();
 
-        // Decrypt email content
+        System.out.println("Password for using private key:");
+        String privateKeyPassword = user.readLine();
+
+        String decryptedEmail = decryptEmail(emailContent, senderPublicKeyPath, userPrivateKeyPath, privateKeyPassword);
+        System.out.println(decryptedEmail);
     }
 
     private String encryptEmail(String emailContent, String recipientPublicKeyPath, String userPrivateKeyPath, String privateKeyPassword) throws CryptoException, OperatorCreationException, PKCSException {
@@ -136,17 +131,18 @@ public class UserProcessor {
         // Encrypt email with AES key
         String encryptedEmail = aesCryptor.encryptString(aesKey, emailContent);
 
-        // Encrypt AES key with RSA public key
+        // Get keys
         RSAUtil rsaCryptor = new RSAUtil();
-        RSAKeyParameters clientPrivateKey = rsaCryptor.getPrivateKey(userPrivateKeyPath, privateKeyPassword);
+        RSAKeyParameters recipientPublicKey = rsaCryptor.getPublicKey(recipientPublicKeyPath);
+        RSAKeyParameters userPrivateKey = rsaCryptor.getPrivateKey(userPrivateKeyPath, privateKeyPassword);
 
-        RSAKeyParameters serverPublicKey = rsaCryptor.getPublicKey(recipientPublicKeyPath);
-        byte[] encryptedAesKeyBytes = rsaCryptor.encryptBytes(serverPublicKey, aesKey.getKey());
-        String encryptedAesKey = Base64.getEncoder().encodeToString(encryptedAesKeyBytes);
+        // Encrypt AES key with RSA public key
+        byte[] encryptedAesKeyBytes = rsaCryptor.encryptBytes(recipientPublicKey, aesKey.getKey());
+        String encryptedAesKey = Base64.toBase64String(encryptedAesKeyBytes);
 
         // Sign the email content
         SignatureUtil signOperator = new SignatureUtil();
-        String signature = signOperator.signString(clientPrivateKey, emailContent);
+        String signature = signOperator.signString(userPrivateKey, encryptedEmail);
 
         // Package email
         StringBuilder encryptEmailBuilder = new StringBuilder();
@@ -155,5 +151,45 @@ public class UserProcessor {
                 .append(BODY).append(encryptedEmail);
 
         return encryptEmailBuilder.toString();
+    }
+
+    private String decryptEmail(String emailContent, String senderPublicKeyPath, String userPrivateKeyPath, String privateKeyPassword) throws OperatorCreationException, PKCSException, InvalidCipherTextException, UnsupportedEncodingException {
+        // Parse the email components
+        String[] lines = emailContent.split("\n");
+        String sigPart = null;
+        String keyPart = null;
+        String bodyPart = null;
+        for (String line : lines) {
+            if (line.startsWith(SIG_HEADER)) {
+                sigPart = line.substring(SIG_HEADER.length()).trim();
+            } else if (line.startsWith(KEY)) {
+                keyPart = line.substring(KEY.length()).trim();
+            } else if (line.startsWith(BODY)) {
+                bodyPart = line.substring(BODY.length()).trim();
+            }
+        }
+
+        // Get keys
+        RSAUtil rsaCryptor = new RSAUtil();
+        RSAKeyParameters senderPublicKey = rsaCryptor.getPublicKey(senderPublicKeyPath);
+        RSAKeyParameters userPrivateKey = rsaCryptor.getPrivateKey(userPrivateKeyPath, privateKeyPassword);
+
+        // Verify signature
+        SignatureUtil verifyOperator = new SignatureUtil();
+        if (verifyOperator.verifyString(senderPublicKey, emailContent, sigPart))
+            System.out.println("Message is authentic");
+        else
+            System.out.println("Message is not authentic");
+
+        // Decrypt AES key
+        byte[] aesKeyBytes = new byte[0];
+        if (Objects.nonNull(keyPart)) aesKeyBytes = rsaCryptor.decryptBytes(userPrivateKey, Base64.decode(keyPart));
+
+        // Decrypt email content
+        AESUtil aesCryptor = new AESUtil();
+        KeyParameter aesKey = new KeyParameter(aesKeyBytes);
+        String decryptedEmail = aesCryptor.decryptString(aesKey, bodyPart);
+
+        return decryptedEmail;
     }
 }

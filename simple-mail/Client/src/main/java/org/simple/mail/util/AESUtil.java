@@ -9,7 +9,10 @@ import org.bouncycastle.crypto.params.ParametersWithIV;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.bouncycastle.util.encoders.Base64;
 
+import javax.crypto.SecretKey;
+import java.io.UnsupportedEncodingException;
 import java.nio.charset.StandardCharsets;
+import java.security.GeneralSecurityException;
 import java.security.SecureRandom;
 import java.security.Security;
 
@@ -55,4 +58,29 @@ public class AESUtil {
         return cipherText;
     }
 
+    public byte[] decryptBytes(KeyParameter key, byte[] cipherBytes) throws InvalidCipherTextException {
+        PaddedBufferedBlockCipher decryptCipher = new PaddedBufferedBlockCipher(
+                CBCBlockCipher.newInstance(AESEngine.newInstance())
+        );
+        SecureRandom random = new SecureRandom();
+        byte[] iv = random.generateSeed(IV_LENGTH);
+        ParametersWithIV parameterIV = new ParametersWithIV(key, iv);
+        decryptCipher.init(true, parameterIV);
+
+        byte[] cipherData = new byte[cipherBytes.length - IV_LENGTH];
+        System.arraycopy(cipherBytes, IV_LENGTH, cipherData, 0, cipherData.length);
+        byte[] output = new byte[decryptCipher.getOutputSize(cipherData.length)];
+        int ret1 = decryptCipher.processBytes(cipherData, 0, cipherData.length, output,
+                0);
+        int ret2 = decryptCipher.doFinal(output, ret1);
+        byte[] result = new byte[ret1 + ret2];
+        System.arraycopy(output, 0, result, 0, result.length);
+
+        return output;
+    }
+
+    public String decryptString(KeyParameter key, String cipherText) throws InvalidCipherTextException {
+        byte[] cipherBytes = Base64.decode(cipherText);
+        return new String(decryptBytes(key, cipherBytes), StandardCharsets.UTF_8);
+    }
 }
