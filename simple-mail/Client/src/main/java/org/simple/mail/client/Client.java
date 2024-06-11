@@ -1,19 +1,16 @@
 package org.simple.mail.client;
 
+import org.bouncycastle.crypto.CryptoException;
+import org.bouncycastle.operator.OperatorCreationException;
+import org.bouncycastle.pkcs.PKCSException;
 import org.simple.mail.util.Request;
 
-import javax.crypto.BadPaddingException;
-import javax.crypto.IllegalBlockSizeException;
-import javax.crypto.NoSuchPaddingException;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.InetAddress;
 import java.net.Socket;
 import java.net.UnknownHostException;
-import java.security.InvalidKeyException;
-import java.security.NoSuchAlgorithmException;
-import java.security.spec.InvalidKeySpecException;
 
 public class Client {
     private static final String SERVER_ADDR = "127.0.0.1";
@@ -35,9 +32,8 @@ public class Client {
                     processor.setRequest(request);
                 } while (processor.process() >= 0);
 
-            } catch (IOException | NoSuchPaddingException | IllegalBlockSizeException |
-                     NoSuchAlgorithmException | InvalidKeySpecException |
-                     BadPaddingException | InvalidKeyException e) {
+            } catch (IOException | CryptoException | OperatorCreationException |
+                     PKCSException e) {
                 System.out.println("Unexpected error occurred");
                 e.printStackTrace();
             }

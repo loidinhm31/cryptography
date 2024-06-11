@@ -1,24 +1,25 @@
 package org.simple.mail.client;
 
 import lombok.Setter;
+import org.bouncycastle.crypto.CryptoException;
+import org.bouncycastle.crypto.params.KeyParameter;
+import org.bouncycastle.crypto.params.RSAKeyParameters;
+import org.bouncycastle.operator.OperatorCreationException;
+import org.bouncycastle.pkcs.PKCSException;
 import org.simple.mail.util.*;
 
-import javax.crypto.*;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.Socket;
-import java.nio.file.Files;
-import java.nio.file.Paths;
-import java.security.InvalidKeyException;
-import java.security.KeyFactory;
-import java.security.NoSuchAlgorithmException;
-import java.security.PublicKey;
-import java.security.spec.InvalidKeySpecException;
-import java.security.spec.X509EncodedKeySpec;
 import java.util.Base64;
+import java.util.Objects;
 
 public class UserProcessor {
+    private static final String SIG_HEADER = "SIG:";
+    private static final String KEY = "KEY:";
+    private static final String BODY = "BODY:";
+
     @Setter
     private Request request;
     @Setter
@@ -33,17 +34,17 @@ public class UserProcessor {
         }
     }
 
-    public int process() throws IOException, NoSuchPaddingException, IllegalBlockSizeException, NoSuchAlgorithmException, InvalidKeySpecException, BadPaddingException, InvalidKeyException {
+    public int process() throws IOException, CryptoException, OperatorCreationException, PKCSException {
         String command = request.getCommand();
         channel.sendRequest(request);
         response = channel.receiveResponse();
-        if (response != null) {
+        if (Objects.nonNull(response)) {
             handleResponse(command);
             return 0;
         } else return -1;
     }
 
-    private void handleResponse(String command) throws NoSuchPaddingException, IllegalBlockSizeException, IOException, NoSuchAlgorithmException, InvalidKeySpecException, BadPaddingException, InvalidKeyException {
+    private void handleResponse(String command) throws IOException, OperatorCreationException, PKCSException, CryptoException {
         System.out.println("Receive: " + response.craftToString());
 
         String returnCode = response.getCode();
@@ -57,7 +58,7 @@ public class UserProcessor {
         }
     }
 
-    private void doDataResponse() throws IOException, NoSuchPaddingException, IllegalBlockSizeException, NoSuchAlgorithmException, InvalidKeySpecException, BadPaddingException, InvalidKeyException {
+    private void doDataResponse() throws CryptoException, OperatorCreationException, PKCSException, IOException {
         System.out.println("Send: ");
         BufferedReader user = new BufferedReader(new InputStreamReader(System.in));
         StringBuilder emailBuilder = new StringBuilder();
@@ -65,24 +66,24 @@ public class UserProcessor {
 
         do {
             line = user.readLine();
+            emailBuilder.append(line).append("\n");
         } while (line.compareTo(Mail.END_MAIL) != 0);
 
-        String emailContent = emailBuilder.toString();
-
-        System.out.println("Enter path to recipient's public key (.pem):");
+        System.out.println("Path to recipient's public key:");
         String recipientPublicKeyPath = user.readLine();
 
-        System.out.println("Enter path to your private key (.pem):");
+        System.out.println("Path to your private key:");
         String userPrivateKeyPath = user.readLine();
 
-        System.out.println("Enter password for your private key:");
+        System.out.println("Password for using private key:");
         String privateKeyPassword = user.readLine();
 
         // Encrypt email and AES key
-        String encryptedEmail = encryptEmail(emailContent, recipientPublicKeyPath);
+        String encryptedEmail = encryptEmail(emailBuilder.toString(), recipientPublicKeyPath, userPrivateKeyPath, privateKeyPassword);
 
-        // Send encrypted email
+        // Send email package
         channel.sendRequest(new Request(encryptedEmail));
+        channel.sendRequest(new Request(Command.END_MAIL));
         response = channel.receiveResponse();
         System.out.println(response.craftToString());
     }
@@ -104,33 +105,55 @@ public class UserProcessor {
             builder.append(line);
             leftBytes = leftBytes - line.length();
         }
-        System.out.println(builder);
+        String emailContent = builder.toString();
+
+        // Parse the email components
+        String[] lines = emailContent.split("\n");
+        String sigPart = null;
+        String keyPart = null;
+        String bodyPart = null;
+        for (String l : lines) {
+            if (l.startsWith(SIG_HEADER)) {
+                sigPart = l.substring(SIG_HEADER.length()).trim();
+            } else if (l.startsWith(KEY)) {
+                keyPart = l.substring(KEY.length()).trim();
+            } else if (l.startsWith(BODY)) {
+                bodyPart = l.substring(BODY.length()).trim();
+            }
+        }
+
+        // Verify signature
+
+        // Decrypt AES key
+
+        // Decrypt email content
     }
 
-    private String encryptEmail(String emailContent, String recipientPublicKeyPath) throws NoSuchPaddingException, NoSuchAlgorithmException, IOException, InvalidKeySpecException, IllegalBlockSizeException, BadPaddingException, InvalidKeyException {
+    private String encryptEmail(String emailContent, String recipientPublicKeyPath, String userPrivateKeyPath, String privateKeyPassword) throws CryptoException, OperatorCreationException, PKCSException {
         // Generate AES key
-        KeyGenerator keyGen = KeyGenerator.getInstance("AES");
-        keyGen.init(128);
-        SecretKey aesKey = keyGen.generateKey();
-
+        AESUtil aesCryptor = new AESUtil();
+        KeyParameter aesKey = aesCryptor.getKey(16);
         // Encrypt email with AES key
-        Cipher aesCipher = Cipher.getInstance("AES");
-        aesCipher.init(Cipher.ENCRYPT_MODE, aesKey);
-        byte[] encryptedEmailBytes = aesCipher.doFinal(emailContent.getBytes());
-        String encryptedEmail = Base64.getEncoder().encodeToString(encryptedEmailBytes);
+        String encryptedEmail = aesCryptor.encryptString(aesKey, emailContent);
 
         // Encrypt AES key with RSA public key
-        byte[] publicKeyBytes = Files.readAllBytes(Paths.get(recipientPublicKeyPath));
-        X509EncodedKeySpec spec = new X509EncodedKeySpec(publicKeyBytes);
-        KeyFactory keyFactory = KeyFactory.getInstance("RSA");
-        PublicKey publicKey = keyFactory.generatePublic(spec);
+        RSAUtil rsaCryptor = new RSAUtil();
+        RSAKeyParameters clientPrivateKey = rsaCryptor.getPrivateKey(userPrivateKeyPath, privateKeyPassword);
 
-        Cipher rsaCipher = Cipher.getInstance("RSA");
-        rsaCipher.init(Cipher.ENCRYPT_MODE, publicKey);
-        byte[] encryptedAesKeyBytes = rsaCipher.doFinal(aesKey.getEncoded());
+        RSAKeyParameters serverPublicKey = rsaCryptor.getPublicKey(recipientPublicKeyPath);
+        byte[] encryptedAesKeyBytes = rsaCryptor.encryptBytes(serverPublicKey, aesKey.getKey());
         String encryptedAesKey = Base64.getEncoder().encodeToString(encryptedAesKeyBytes);
 
-        // Combine encrypted email and encrypted AES key
-        return encryptedEmail + ":" + encryptedAesKey;
+        // Sign the email content
+        SignatureUtil signOperator = new SignatureUtil();
+        String signature = signOperator.signString(clientPrivateKey, emailContent);
+
+        // Package email
+        StringBuilder encryptEmailBuilder = new StringBuilder();
+        encryptEmailBuilder.append(SIG_HEADER).append(signature).append("\n")
+                .append(KEY).append(encryptedAesKey).append("\n")
+                .append(BODY).append(encryptedEmail);
+
+        return encryptEmailBuilder.toString();
     }
 }

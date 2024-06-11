@@ -48,7 +48,7 @@ public class Database {
             selectStmt.setString(1, recipient);
             selectStmt.setInt(2, id);
             ResultSet rs = selectStmt.executeQuery();
-            if (rs.first()) {
+            if (rs.next()) {
                 mail = new Mail();
                 mail.setId(rs.getInt("id"));
                 mail.setSender(rs.getString("sender"));

@@ -162,14 +162,8 @@ public class RequestProcessor {
             mail.setBody(builder.toString());
         } else {
             response = new Response();
-            try {
-                String decryptedEmail = decryptEmail(mail.getBody());
-                mail.setBody(decryptedEmail);
-                db.insertMail(mail);
-                response.setContent(Response.SUCCESS, Response.DELIVERY_SUCCESS);
-            } catch (Exception e) {
-                response.setContent(Response.ERROR, "Decryption failed");
-            }
+            response.setContent(Response.SUCCESS, Response.DELIVERY_SUCCESS);
+            db.insertMail(mail);
             session.setStatus(Session.USER_IDENTIFIED);
         }
     }
