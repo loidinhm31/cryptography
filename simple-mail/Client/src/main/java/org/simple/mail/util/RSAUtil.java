@@ -19,10 +19,14 @@ import org.bouncycastle.pkcs.PKCSException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.nio.file.Paths;
+import java.security.Security;
 import java.util.Objects;
 
-
 public class RSAUtil {
+
+    public RSAUtil() {
+        Security.addProvider(new BouncyCastleProvider());
+    }
 
     public RSAKeyParameters getPrivateKey(String keyFile, String password)
             throws OperatorCreationException, PKCSException {

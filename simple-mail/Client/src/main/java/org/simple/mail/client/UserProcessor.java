@@ -159,6 +159,7 @@ public class UserProcessor {
         String sigPart = null;
         String keyPart = null;
         String bodyPart = null;
+        StringBuilder leftPart = new StringBuilder();
         for (String line : lines) {
             if (line.startsWith(SIG_HEADER)) {
                 sigPart = line.substring(SIG_HEADER.length()).trim();
@@ -166,6 +167,8 @@ public class UserProcessor {
                 keyPart = line.substring(KEY.length()).trim();
             } else if (line.startsWith(BODY)) {
                 bodyPart = line.substring(BODY.length()).trim();
+            } else {
+                leftPart.append(line).append("\n");
             }
         }
 
@@ -176,20 +179,22 @@ public class UserProcessor {
 
         // Verify signature
         SignatureUtil verifyOperator = new SignatureUtil();
-        if (verifyOperator.verifyString(senderPublicKey, emailContent, sigPart))
-            System.out.println("Message is authentic");
-        else
-            System.out.println("Message is not authentic");
+        if (Objects.nonNull(bodyPart))
+            if (verifyOperator.verifyString(senderPublicKey, bodyPart, sigPart))
+                System.out.println("Message is authentic");
+            else
+                System.out.println("Message is not authentic");
 
         // Decrypt AES key
         byte[] aesKeyBytes = new byte[0];
-        if (Objects.nonNull(keyPart)) aesKeyBytes = rsaCryptor.decryptBytes(userPrivateKey, Base64.decode(keyPart));
+        if (Objects.nonNull(keyPart))
+            aesKeyBytes = rsaCryptor.decryptBytes(userPrivateKey, Base64.decode(keyPart));
 
         // Decrypt email content
         AESUtil aesCryptor = new AESUtil();
         KeyParameter aesKey = new KeyParameter(aesKeyBytes);
         String decryptedEmail = aesCryptor.decryptString(aesKey, bodyPart);
 
-        return decryptedEmail;
+        return leftPart + decryptedEmail;
     }
 }

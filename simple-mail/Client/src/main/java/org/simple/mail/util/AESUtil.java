@@ -9,10 +9,7 @@ import org.bouncycastle.crypto.params.ParametersWithIV;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.bouncycastle.util.encoders.Base64;
 
-import javax.crypto.SecretKey;
-import java.io.UnsupportedEncodingException;
 import java.nio.charset.StandardCharsets;
-import java.security.GeneralSecurityException;
 import java.security.SecureRandom;
 import java.security.Security;
 
@@ -37,46 +34,47 @@ public class AESUtil {
         PaddedBufferedBlockCipher encryptCipher = new PaddedBufferedBlockCipher(
                 CBCBlockCipher.newInstance(AESEngine.newInstance())
         );
+        byte[] iv = new byte[IV_LENGTH];
         SecureRandom random = new SecureRandom();
-        byte[] iv = random.generateSeed(IV_LENGTH);
+        random.nextBytes(iv);
         ParametersWithIV parameterIV = new ParametersWithIV(key, iv);
         encryptCipher.init(true, parameterIV);
 
         byte[] output = new byte[encryptCipher.getOutputSize(plainBytes.length)];
-        int ret1 = encryptCipher.processBytes(plainBytes, 0, plainBytes.length, output, 0);
-        int ret2 = encryptCipher.doFinal(output, ret1);
-        byte[] result = new byte[IV_LENGTH + ret1 + ret2];
-        System.arraycopy(iv, 0, result, 0, IV_LENGTH);
-        System.arraycopy(output, 0, result, IV_LENGTH, result.length - IV_LENGTH);
+        int len = encryptCipher.processBytes(plainBytes, 0, plainBytes.length, output, 0);
+        len += encryptCipher.doFinal(output, len);
 
-        return output;
+        byte[] encrypted = new byte[IV_LENGTH + len];
+        System.arraycopy(iv, 0, encrypted, 0, IV_LENGTH);
+        System.arraycopy(output, 0, encrypted, IV_LENGTH, len);
+
+        return encrypted;
     }
 
     public String encryptString(KeyParameter key, String plainText) throws InvalidCipherTextException {
-        String cipherText;
-        cipherText = Base64.toBase64String(encryptBytes(key, plainText.getBytes(StandardCharsets.UTF_8)));
-        return cipherText;
+        return Base64.toBase64String(encryptBytes(key, plainText.getBytes(StandardCharsets.UTF_8)));
     }
 
     public byte[] decryptBytes(KeyParameter key, byte[] cipherBytes) throws InvalidCipherTextException {
         PaddedBufferedBlockCipher decryptCipher = new PaddedBufferedBlockCipher(
                 CBCBlockCipher.newInstance(AESEngine.newInstance())
         );
-        SecureRandom random = new SecureRandom();
-        byte[] iv = random.generateSeed(IV_LENGTH);
+        byte[] iv = new byte[IV_LENGTH];
+        System.arraycopy(cipherBytes, 0, iv, 0, IV_LENGTH);
         ParametersWithIV parameterIV = new ParametersWithIV(key, iv);
-        decryptCipher.init(true, parameterIV);
+        decryptCipher.init(false, parameterIV);
 
         byte[] cipherData = new byte[cipherBytes.length - IV_LENGTH];
         System.arraycopy(cipherBytes, IV_LENGTH, cipherData, 0, cipherData.length);
-        byte[] output = new byte[decryptCipher.getOutputSize(cipherData.length)];
-        int ret1 = decryptCipher.processBytes(cipherData, 0, cipherData.length, output,
-                0);
-        int ret2 = decryptCipher.doFinal(output, ret1);
-        byte[] result = new byte[ret1 + ret2];
-        System.arraycopy(output, 0, result, 0, result.length);
 
-        return output;
+        byte[] output = new byte[decryptCipher.getOutputSize(cipherData.length)];
+        int len = decryptCipher.processBytes(cipherData, 0, cipherData.length, output, 0);
+        len += decryptCipher.doFinal(output, len);
+
+        byte[] decrypted = new byte[len];
+        System.arraycopy(output, 0, decrypted, 0, len);
+
+        return decrypted;
     }
 
     public String decryptString(KeyParameter key, String cipherText) throws InvalidCipherTextException {
