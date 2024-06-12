@@ -2,7 +2,6 @@ package org.simple.mail.client;
 
 import org.bouncycastle.crypto.CryptoException;
 import org.bouncycastle.operator.OperatorCreationException;
-import org.bouncycastle.pkcs.PKCSException;
 import org.simple.mail.util.Request;
 
 import java.io.BufferedReader;
@@ -32,8 +31,7 @@ public class Client {
                     processor.setRequest(request);
                 } while (processor.process() >= 0);
 
-            } catch (IOException | CryptoException | OperatorCreationException |
-                     PKCSException e) {
+            } catch (IOException | CryptoException | OperatorCreationException e) {
                 System.out.println("Unexpected error occurred");
                 e.printStackTrace();
             }

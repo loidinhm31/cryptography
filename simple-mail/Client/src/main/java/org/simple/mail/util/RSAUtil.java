@@ -15,7 +15,9 @@ import org.bouncycastle.operator.InputDecryptorProvider;
 import org.bouncycastle.operator.OperatorCreationException;
 import org.bouncycastle.pkcs.PKCS8EncryptedPrivateKeyInfo;
 import org.bouncycastle.pkcs.PKCSException;
+import org.simple.mail.error.DecryptPrivateKeyInfoException;
 
+import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.nio.file.Paths;
@@ -29,42 +31,42 @@ public class RSAUtil {
     }
 
     public RSAKeyParameters getPrivateKey(String keyFile, String password)
-            throws OperatorCreationException, PKCSException {
-        RSAKeyParameters privateKey = null;
-        PrivateKeyInfo keyInfo = null;
+            throws OperatorCreationException, IOException, DecryptPrivateKeyInfoException {
         try (FileReader reader = new FileReader(Paths.get(keyFile).toAbsolutePath().toFile());
              PEMParser pemParser = new PEMParser(reader)) {
             Object keyPair = pemParser.readObject();
+            PrivateKeyInfo keyInfo = null;
             if (keyPair instanceof PKCS8EncryptedPrivateKeyInfo) {
                 JceOpenSSLPKCS8DecryptorProviderBuilder jce =
                         new JceOpenSSLPKCS8DecryptorProviderBuilder();
                 jce.setProvider(new BouncyCastleProvider());
                 InputDecryptorProvider decProv = jce.build(password.toCharArray());
-                keyInfo = ((PKCS8EncryptedPrivateKeyInfo) keyPair).decryptPrivateKeyInfo(decProv);
+                try {
+                    keyInfo = ((PKCS8EncryptedPrivateKeyInfo) keyPair).decryptPrivateKeyInfo(decProv);
+                } catch (PKCSException e) {
+                    throw new DecryptPrivateKeyInfoException(e.getMessage());
+                }
             } else if (keyPair instanceof PrivateKeyInfo) {
                 keyInfo = (PrivateKeyInfo) keyPair;
             }
-            if (Objects.nonNull(keyInfo))
-                privateKey = (RSAKeyParameters) PrivateKeyFactory.createKey(keyInfo);
-        } catch (IOException e) {
-            e.printStackTrace();
+            if (Objects.nonNull(keyInfo)) {
+                RSAKeyParameters privateKey = (RSAKeyParameters) PrivateKeyFactory.createKey(keyInfo);
+                return privateKey;
+            }
         }
-        return privateKey;
+        return null;
     }
 
-    public RSAKeyParameters getPublicKey(String certFile) {
-        RSAKeyParameters publicKey = null;
+    public RSAKeyParameters getPublicKey(String certFile) throws IOException {
         try (FileReader reader = new FileReader(Paths.get(certFile).toAbsolutePath().toFile());
              PEMParser pemParser = new PEMParser(reader)) {
             X509CertificateHolder certificate;
             certificate = (X509CertificateHolder) pemParser.readObject();
-            publicKey = (RSAKeyParameters) PublicKeyFactory.createKey(
+            RSAKeyParameters publicKey = (RSAKeyParameters) PublicKeyFactory.createKey(
                     certificate.getSubjectPublicKeyInfo()
             );
-        } catch (IOException e) {
-            e.printStackTrace();
+            return publicKey;
         }
-        return publicKey;
     }
 
     public byte[] encryptBytes(RSAKeyParameters publicKey, byte[] plainBytes) throws InvalidCipherTextException {

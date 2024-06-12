@@ -6,8 +6,8 @@ import org.bouncycastle.crypto.InvalidCipherTextException;
 import org.bouncycastle.crypto.params.KeyParameter;
 import org.bouncycastle.crypto.params.RSAKeyParameters;
 import org.bouncycastle.operator.OperatorCreationException;
-import org.bouncycastle.pkcs.PKCSException;
 import org.bouncycastle.util.encoders.Base64;
+import org.simple.mail.error.DecryptPrivateKeyInfoException;
 import org.simple.mail.util.*;
 
 import java.io.BufferedReader;
@@ -16,6 +16,7 @@ import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
 import java.net.Socket;
 import java.util.Objects;
+import java.util.Optional;
 
 public class UserProcessor {
     private static final String SIG_HEADER = "SIG:";
@@ -36,7 +37,7 @@ public class UserProcessor {
         }
     }
 
-    public int process() throws IOException, CryptoException, OperatorCreationException, PKCSException {
+    public int process() throws IOException, CryptoException, OperatorCreationException {
         String command = request.getCommand();
         channel.sendRequest(request);
         response = channel.receiveResponse();
@@ -46,7 +47,7 @@ public class UserProcessor {
         } else return -1;
     }
 
-    private void handleResponse(String command) throws IOException, OperatorCreationException, PKCSException, CryptoException {
+    private void handleResponse(String command) throws IOException, OperatorCreationException, CryptoException {
         System.out.println("Receive: " + response.craftToString());
 
         String returnCode = response.getCode();
@@ -60,7 +61,7 @@ public class UserProcessor {
         }
     }
 
-    private void doDataResponse() throws CryptoException, OperatorCreationException, PKCSException, IOException {
+    private void doDataResponse() throws CryptoException, OperatorCreationException, IOException {
         System.out.println("Send: ");
         BufferedReader user = new BufferedReader(new InputStreamReader(System.in));
         StringBuilder emailBuilder = new StringBuilder();
@@ -71,23 +72,16 @@ public class UserProcessor {
             emailBuilder.append(line).append("\n");
         } while (line.compareTo(Mail.END_MAIL) != 0);
 
-        System.out.println("Path to recipient's public key:");
-        String recipientPublicKeyPath = user.readLine();
-
-        System.out.println("Path to your private key:");
-        String userPrivateKeyPath = user.readLine();
-
-        System.out.println("Password for using private key:");
-        String privateKeyPassword = user.readLine();
-
         // Encrypt email and AES key
-        String encryptedEmail = encryptEmail(emailBuilder.toString(), recipientPublicKeyPath, userPrivateKeyPath, privateKeyPassword);
+        Optional<String> encryptedEmail = processEncryptEmail(user, emailBuilder.toString());
 
-        // Send email package
-        channel.sendRequest(new Request(encryptedEmail));
-        channel.sendRequest(new Request(Command.END_MAIL));
-        response = channel.receiveResponse();
-        System.out.println(response.craftToString());
+        if (encryptedEmail.isPresent()) {
+            // Send email package
+            channel.sendRequest(new Request(encryptedEmail.get()));
+            channel.sendRequest(new Request(Command.END_MAIL));
+            response = channel.receiveResponse();
+            System.out.println(response.craftToString());
+        }
     }
 
     private void doListResponse() throws IOException {
@@ -98,7 +92,7 @@ public class UserProcessor {
         System.out.println(builder);
     }
 
-    private void doRetrieveResponse() throws IOException, InvalidCipherTextException, OperatorCreationException, PKCSException {
+    private void doRetrieveResponse() throws IOException, InvalidCipherTextException, OperatorCreationException {
         StringBuilder builder = new StringBuilder();
         String line;
         int leftBytes = Integer.parseInt(response.getNotice()) + 1;
@@ -111,30 +105,49 @@ public class UserProcessor {
 
         BufferedReader user = new BufferedReader(new InputStreamReader(System.in));
 
-        System.out.println("Path to sender's public key:");
-        String senderPublicKeyPath = user.readLine();
+        Optional<String> decryptedEmail = decryptEmailProcess(user, emailContent);
+        decryptedEmail.ifPresent(System.out::println);
+    }
+
+    private Optional<String> processEncryptEmail(BufferedReader user, String emailContent) throws OperatorCreationException, CryptoException, IOException {
+        // Get keys
+        RSAUtil rsaCryptor = new RSAUtil();
+
+        System.out.println("Path to recipient's public key:");
+        String recipientPublicKeyPath = user.readLine();
+        RSAKeyParameters recipientPublicKey;
+        try {
+            recipientPublicKey = rsaCryptor.getPublicKey(recipientPublicKeyPath);
+        } catch (IOException e) {
+            System.out.println("Error: File not found.");
+            return Optional.empty();
+        }
 
         System.out.println("Path to your private key:");
         String userPrivateKeyPath = user.readLine();
 
         System.out.println("Password for using private key:");
         String privateKeyPassword = user.readLine();
+        RSAKeyParameters userPrivateKey;
+        try {
+            userPrivateKey = rsaCryptor.getPrivateKey(userPrivateKeyPath, privateKeyPassword);
+        } catch (IOException e1) {
+            System.out.println("Error: File not found.");
+            return Optional.empty();
+        } catch (DecryptPrivateKeyInfoException e2) {
+            System.out.println("Cannot get private key. Maybe wrong password.");
+            return Optional.empty();
+        }
 
-        String decryptedEmail = decryptEmail(emailContent, senderPublicKeyPath, userPrivateKeyPath, privateKeyPassword);
-        System.out.println(decryptedEmail);
+        return Optional.of(encryptEmail(emailContent, rsaCryptor, recipientPublicKey, userPrivateKey));
     }
 
-    private String encryptEmail(String emailContent, String recipientPublicKeyPath, String userPrivateKeyPath, String privateKeyPassword) throws CryptoException, OperatorCreationException, PKCSException {
+    private String encryptEmail(String emailContent, RSAUtil rsaCryptor, RSAKeyParameters recipientPublicKey, RSAKeyParameters userPrivateKey) throws CryptoException {
         // Generate AES key
         AESUtil aesCryptor = new AESUtil();
         KeyParameter aesKey = aesCryptor.getKey(16);
         // Encrypt email with AES key
         String encryptedEmail = aesCryptor.encryptString(aesKey, emailContent);
-
-        // Get keys
-        RSAUtil rsaCryptor = new RSAUtil();
-        RSAKeyParameters recipientPublicKey = rsaCryptor.getPublicKey(recipientPublicKeyPath);
-        RSAKeyParameters userPrivateKey = rsaCryptor.getPrivateKey(userPrivateKeyPath, privateKeyPassword);
 
         // Encrypt AES key with RSA public key
         byte[] encryptedAesKeyBytes = rsaCryptor.encryptBytes(recipientPublicKey, aesKey.getKey());
@@ -153,7 +166,39 @@ public class UserProcessor {
         return encryptEmailBuilder.toString();
     }
 
-    private String decryptEmail(String emailContent, String senderPublicKeyPath, String userPrivateKeyPath, String privateKeyPassword) throws OperatorCreationException, PKCSException, InvalidCipherTextException, UnsupportedEncodingException {
+    private Optional<String> decryptEmailProcess(BufferedReader user, String emailContent) throws IOException, OperatorCreationException, InvalidCipherTextException {
+        // Get keys
+        RSAUtil rsaCryptor = new RSAUtil();
+
+        System.out.println("Path to sender's public key:");
+        String senderPublicKeyPath = user.readLine();
+        RSAKeyParameters senderPublicKey;
+        try {
+            senderPublicKey = rsaCryptor.getPublicKey(senderPublicKeyPath);
+        } catch (IOException e) {
+            System.out.println("Error: File not found.");
+            return Optional.empty();
+        }
+
+        System.out.println("Path to your private key:");
+        String userPrivateKeyPath = user.readLine();
+
+        System.out.println("Password for using private key:");
+        String privateKeyPassword = user.readLine();
+        RSAKeyParameters userPrivateKey;
+        try {
+            userPrivateKey = rsaCryptor.getPrivateKey(userPrivateKeyPath, privateKeyPassword);
+        } catch (IOException e1) {
+            System.out.println("Error: File not found.");
+            return Optional.empty();
+        } catch (DecryptPrivateKeyInfoException e2) {
+            System.out.println("Cannot get private key. Maybe wrong password.");
+            return Optional.empty();
+        }
+        return Optional.of(decryptEmail(emailContent, rsaCryptor, senderPublicKey, userPrivateKey));
+    }
+
+    private String decryptEmail(String emailContent, RSAUtil rsaCryptor, RSAKeyParameters senderPublicKey, RSAKeyParameters userPrivateKey) throws InvalidCipherTextException, UnsupportedEncodingException {
         // Parse the email components
         String[] lines = emailContent.split("\n");
         String sigPart = null;
@@ -171,11 +216,6 @@ public class UserProcessor {
                 leftPart.append(line).append("\n");
             }
         }
-
-        // Get keys
-        RSAUtil rsaCryptor = new RSAUtil();
-        RSAKeyParameters senderPublicKey = rsaCryptor.getPublicKey(senderPublicKeyPath);
-        RSAKeyParameters userPrivateKey = rsaCryptor.getPrivateKey(userPrivateKeyPath, privateKeyPassword);
 
         // Verify signature
         SignatureUtil verifyOperator = new SignatureUtil();
@@ -195,6 +235,6 @@ public class UserProcessor {
         KeyParameter aesKey = new KeyParameter(aesKeyBytes);
         String decryptedEmail = aesCryptor.decryptString(aesKey, bodyPart);
 
-        return leftPart + decryptedEmail;
+        return leftPart.append(decryptedEmail).toString();
     }
 }
