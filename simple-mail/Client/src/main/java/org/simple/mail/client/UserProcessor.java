@@ -153,17 +153,15 @@ public class UserProcessor {
         byte[] encryptedAesKeyBytes = rsaCryptor.encryptBytes(recipientPublicKey, aesKey.getKey());
         String encryptedAesKey = Base64.toBase64String(encryptedAesKeyBytes);
 
-        // Sign the email content
+        // Sign the entire message including the encrypted AES key
+        String messageToSign = "KEY::" + encryptedAesKey + "\nBODY::" + encryptedEmail;
         SignatureUtil signOperator = new SignatureUtil();
-        String signature = signOperator.signString(userPrivateKey, encryptedEmail);
+        String signature = signOperator.signString(userPrivateKey, messageToSign);
 
         // Package email
-        StringBuilder encryptEmailBuilder = new StringBuilder();
-        encryptEmailBuilder.append(SIG_HEADER).append(signature).append("\n")
-                .append(KEY).append(encryptedAesKey).append("\n")
-                .append(BODY).append(encryptedEmail);
-
-        return encryptEmailBuilder.toString();
+        return SIG_HEADER + signature + "\n" +
+                KEY + encryptedAesKey + "\n" +
+                BODY + encryptedEmail;
     }
 
     private Optional<String> decryptEmailProcess(BufferedReader user, String emailContent) throws IOException, OperatorCreationException, InvalidCipherTextException {
@@ -195,7 +193,7 @@ public class UserProcessor {
             System.out.println("Cannot get private key. Maybe wrong password.");
             return Optional.empty();
         }
-        return Optional.of(decryptEmail(emailContent, rsaCryptor, senderPublicKey, userPrivateKey));
+        return Optional.ofNullable(decryptEmail(emailContent, rsaCryptor, senderPublicKey, userPrivateKey));
     }
 
     private String decryptEmail(String emailContent, RSAUtil rsaCryptor, RSAKeyParameters senderPublicKey, RSAKeyParameters userPrivateKey) throws InvalidCipherTextException, UnsupportedEncodingException {
@@ -219,22 +217,24 @@ public class UserProcessor {
 
         // Verify signature
         SignatureUtil verifyOperator = new SignatureUtil();
-        if (Objects.nonNull(bodyPart))
-            if (verifyOperator.verifyString(senderPublicKey, bodyPart, sigPart))
-                System.out.println("Message is authentic");
-            else
-                System.out.println("Message is not authentic");
+        if (Objects.nonNull(bodyPart)) {
+            String messageToVerify = "KEY]::" + keyPart + "\nBODY::" + bodyPart;
+            if (verifyOperator.verifyString(senderPublicKey, messageToVerify, sigPart)) {
+                // Decrypt AES key
+                byte[] aesKeyBytes = new byte[0];
+                if (Objects.nonNull(keyPart))
+                    aesKeyBytes = rsaCryptor.decryptBytes(userPrivateKey, Base64.decode(keyPart));
 
-        // Decrypt AES key
-        byte[] aesKeyBytes = new byte[0];
-        if (Objects.nonNull(keyPart))
-            aesKeyBytes = rsaCryptor.decryptBytes(userPrivateKey, Base64.decode(keyPart));
+                // Decrypt email content
+                AESUtil aesCryptor = new AESUtil();
+                KeyParameter aesKey = new KeyParameter(aesKeyBytes);
+                String decryptedEmail = aesCryptor.decryptString(aesKey, bodyPart);
 
-        // Decrypt email content
-        AESUtil aesCryptor = new AESUtil();
-        KeyParameter aesKey = new KeyParameter(aesKeyBytes);
-        String decryptedEmail = aesCryptor.decryptString(aesKey, bodyPart);
+                return leftPart.append(decryptedEmail).toString();
+            } else
+                System.out.println("Email is not authentic");
+        }
 
-        return leftPart.append(decryptedEmail).toString();
+        return null;
     }
 }
