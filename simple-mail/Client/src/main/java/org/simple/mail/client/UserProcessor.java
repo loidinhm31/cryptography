@@ -218,7 +218,7 @@ public class UserProcessor {
         // Verify signature
         SignatureUtil verifyOperator = new SignatureUtil();
         if (Objects.nonNull(bodyPart)) {
-            String messageToVerify = "KEY]::" + keyPart + "\nBODY::" + bodyPart;
+            String messageToVerify = "KEY::" + keyPart + "\nBODY::" + bodyPart;
             if (verifyOperator.verifyString(senderPublicKey, messageToVerify, sigPart)) {
                 // Decrypt AES key
                 byte[] aesKeyBytes = new byte[0];

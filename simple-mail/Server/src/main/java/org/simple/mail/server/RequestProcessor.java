@@ -4,18 +4,10 @@ import lombok.Getter;
 import lombok.Setter;
 import org.simple.mail.util.*;
 
-import javax.crypto.Cipher;
-import javax.crypto.spec.SecretKeySpec;
-import java.nio.file.Files;
-import java.nio.file.Paths;
-import java.security.KeyFactory;
-import java.security.PrivateKey;
-import java.security.spec.PKCS8EncodedKeySpec;
 import java.sql.SQLException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Base64;
 import java.util.Date;
 
 public class RequestProcessor {
@@ -157,7 +149,11 @@ public class RequestProcessor {
         if (line.compareTo(Mail.END_MAIL) != 0) {
             response = null;
             StringBuilder builder = new StringBuilder();
-            builder.append(mail.getBody()).append("\n");
+            if (!mail.getBody().isEmpty()) {
+                builder.append(mail.getBody()).append("\n");
+            } else {
+                builder.append(mail.getBody());
+            }
             builder.append(line);
             mail.setBody(builder.toString());
         } else {

@@ -9,7 +9,7 @@ public class Database {
     public final static String DB_NAME = "maildb";
     public final static String ACCOUNT = "mailadmin";
     public final static String PASSWORD = "123456";
-    private final static String URL_PREFIX = "jdbc:mysql://localhost:3306/";
+    private final static String URL_PREFIX = "jdbc:mysql://127.0.0.1:3306/";
 
     Statement stmt;
     private final Connection conn;
