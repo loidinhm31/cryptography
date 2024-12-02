@@ -16,7 +16,6 @@ public class ReceiverClient {
     private static final String BODY = "BODY:";
 
     public static void main(String[] args) {
-        // TODO Auto-generated method stub
         try {
             InetAddress servAddr = InetAddress.getByName(SERVER_ADDR);
             try (Socket clientSocket = new Socket(servAddr, SERVER_PORT);
@@ -25,29 +24,29 @@ public class ReceiverClient {
             ) {
                 SignatureUtil verifyOperator = new SignatureUtil();
 
-                //Enter password for generating secret key
+                // Enter password for generating secret key
                 RSAKeyParameters senderPublicKey;
                 String senderPublicKeyFile;
                 System.out.print("Sender certificate file: ");
                 senderPublicKeyFile = user.readLine();
                 senderPublicKey = verifyOperator.getPublicKey(senderPublicKeyFile);
 
-                String message, signature = new String(), body = new String();
+                String message, signature = "", body = "";
                 while (true) {
                     message = in.readLine();
                     if (message == null) break;
 
-                    if (message.startsWith(SIG_HEADER) == true)
+                    if (message.startsWith(SIG_HEADER))
                         signature = message.substring(SIG_HEADER.length());
-                    else if (message.startsWith(BODY) == true)
+                    else if (message.startsWith(BODY))
                         body = message.substring(BODY.length());
 
                     message = in.readLine();
                     if (message == null) break;
 
-                    if (message.startsWith(SIG_HEADER) == true)
+                    if (message.startsWith(SIG_HEADER))
                         signature = message.substring(SIG_HEADER.length());
-                    else if (message.startsWith(BODY) == true)
+                    else if (message.startsWith(BODY))
                         body = message.substring(BODY.length());
 
                     System.out.println("Receive: " + body);

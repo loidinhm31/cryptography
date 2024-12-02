@@ -18,6 +18,9 @@
 --
 -- Table structure for table `tbl_mails`
 --
+CREATE DATABASE IF NOT EXISTS maildb;
+
+USE maildb;
 
 DROP TABLE IF EXISTS `tbl_mails`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;

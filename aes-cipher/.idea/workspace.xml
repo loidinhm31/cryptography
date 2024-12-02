@@ -4,42 +4,30 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="5412f416-6184-4160-a696-c8c203b503dd" name="Changes" comment="Add README for origin of Shift Cipher">
-      <change afterPath="$PROJECT_DIR$/../hmac/.gitignore" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../hmac/.idea/.gitignore" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../hmac/.idea/encodings.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../hmac/.idea/material_theme_project_new.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../hmac/.idea/misc.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../hmac/.idea/vcs.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../hmac/pom.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../hmac/rsa-sig-forward-server/pom.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../hmac/rsa-sig-forward-server/src/main/java/org/signature/forward/server/ForwardServer.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../hmac/rsa-sig-forward-server/src/main/java/org/signature/forward/util/SignatureUtil.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../hmac/rsa-sig-receiver-client/pom.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../hmac/rsa-sig-receiver-client/sendercert.pem" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../hmac/rsa-sig-receiver-client/src/main/java/org/signature/forward/util/SignatureUtil.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../hmac/rsa-sig-receiver-client/src/main/java/org/signature/receiver/client/ReceiverClient.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../hmac/rsa-sig-sender-client/pom.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../hmac/rsa-sig-sender-client/senderpriv.pem" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../hmac/rsa-sig-sender-client/src/main/java/org/signature/forward/util/SignatureUtil.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../hmac/rsa-sig-sender-client/src/main/java/org/signature/sender/client/SenderClient.java" afterDir="false" />
+    <list default="true" id="5412f416-6184-4160-a696-c8c203b503dd" name="Changes" comment="Try to decrypt email">
       <change beforePath="$PROJECT_DIR$/.idea/encodings.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/encodings.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/echo-client/src/main/java/org/aes/echo/client/AESEchoClient.java" beforeDir="false" afterPath="$PROJECT_DIR$/echo-client/src/main/java/org/aes/echo/client/AESEchoClient.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/echo-client/src/main/java/org/secure/echo/util/AESUtil.java" beforeDir="false" afterPath="$PROJECT_DIR$/echo-client/src/main/java/org/secure/echo/util/AESUtil.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/echo-server/src/main/java/org/aes/echo/server/AESEchoServer.java" beforeDir="false" afterPath="$PROJECT_DIR$/echo-server/src/main/java/org/aes/echo/server/AESEchoServer.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/echo-server/src/main/java/org/secure/echo/util/AESUtil.java" beforeDir="false" afterPath="$PROJECT_DIR$/echo-server/src/main/java/org/secure/echo/util/AESUtil.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../simple-mail/Server/src/main/java/org/simple/mail/server/Server.java" beforeDir="false" afterPath="$PROJECT_DIR$/../simple-mail/Server/src/main/java/org/simple/mail/server/Server.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../simple-mail/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../simple-mail/pom.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../data-integrity/rsa/rsa-sig-receiver-client/src/main/java/org/signature/forward/util/SignatureUtil.java" beforeDir="false" afterPath="$PROJECT_DIR$/../data-integrity/rsa/rsa-sig-receiver-client/src/main/java/org/signature/forward/util/SignatureUtil.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../data-integrity/rsa/rsa-sig-receiver-client/src/main/java/org/signature/receiver/client/ReceiverClient.java" beforeDir="false" afterPath="$PROJECT_DIR$/../data-integrity/rsa/rsa-sig-receiver-client/src/main/java/org/signature/receiver/client/ReceiverClient.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../data-integrity/rsa/rsa-sig-sender-client/src/main/java/org/signature/forward/util/SignatureUtil.java" beforeDir="false" afterPath="$PROJECT_DIR$/../data-integrity/rsa/rsa-sig-sender-client/src/main/java/org/signature/forward/util/SignatureUtil.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
     <option name="LAST_RESOLUTION" value="IGNORE" />
   </component>
+  <component name="FileTemplateManagerImpl">
+    <option name="RECENT_TEMPLATES">
+      <list>
+        <option value="Class" />
+      </list>
+    </option>
+  </component>
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$/.." />
+    <option name="RESET_MODE" value="SOFT" />
   </component>
   <component name="ProjectColorInfo">{
   &quot;associatedIndex&quot;: 7
@@ -49,26 +37,48 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent"><![CDATA[{
-  "keyToString": {
-    "Application.AESEchoClient.executor": "Debug",
-    "Application.AESEchoServer.executor": "Debug",
-    "RunOnceActivity.ShowReadmeOnStart": "true",
-    "git-widget-placeholder": "main",
-    "kotlin-language-version-configured": "true",
-    "node.js.detected.package.eslint": "true",
-    "node.js.detected.package.tslint": "true",
-    "node.js.selected.package.eslint": "(autodetect)",
-    "node.js.selected.package.tslint": "(autodetect)",
-    "nodejs_package_manager_path": "npm",
-    "project.structure.last.edited": "Modules",
-    "project.structure.proportion": "0.0",
-    "project.structure.side.proportion": "0.0",
-    "settings.editor.selected.configurable": "preferences.lookFeel",
-    "vue.rearranger.settings.migration": "true"
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;Application.AESEchoClient.executor&quot;: &quot;Debug&quot;,
+    &quot;Application.AESEchoServer.executor&quot;: &quot;Debug&quot;,
+    &quot;Application.Client.executor&quot;: &quot;Debug&quot;,
+    &quot;Application.RSAEchoServer.executor&quot;: &quot;Run&quot;,
+    &quot;Application.Server.executor&quot;: &quot;Debug&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;main&quot;,
+    &quot;kotlin-language-version-configured&quot;: &quot;true&quot;,
+    &quot;last_opened_file_path&quot;: &quot;/media/deletal/data/WORKSPACE/cryptography/simple-mail/Client/src/main/resources&quot;,
+    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
+    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
+    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
+    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
+    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
+    &quot;project.structure.last.edited&quot;: &quot;Modules&quot;,
+    &quot;project.structure.proportion&quot;: &quot;0.15&quot;,
+    &quot;project.structure.side.proportion&quot;: &quot;0.2&quot;,
+    &quot;settings.editor.selected.configurable&quot;: &quot;preferences.lookFeel&quot;,
+    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
   }
-}]]></component>
-  <component name="RunManager" selected="Application.AESEchoClient">
+}</component>
+  <component name="RecentsManager">
+    <key name="CopyFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/../simple-mail/Client/src/main/resources" />
+      <recent name="$PROJECT_DIR$/../data-integrity/hmac/hmac-forward-server/src/main/java" />
+      <recent name="$PROJECT_DIR$/../data-integrity/hmac/hmac-receiver-client/src/main/java" />
+      <recent name="$PROJECT_DIR$/../data-integrity/hmac/hmac-sender-client/src/main/java" />
+    </key>
+    <key name="MoveFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/../data-integrity/rsa/rsa-sig-receiver-client/src/main/resources" />
+      <recent name="$PROJECT_DIR$/../data-integrity/rsa/rsa-sig-sender-client/src/main/resources" />
+      <recent name="$PROJECT_DIR$/../hmac/rsa" />
+      <recent name="$PROJECT_DIR$/../rsa-cipher/echo-client/src/main/resources" />
+      <recent name="$PROJECT_DIR$/../rsa-cipher/echo-server/src/main/resources" />
+    </key>
+    <key name="CopyClassDialog.RECENTS_KEY">
+      <recent name="org.simple.mail.util" />
+    </key>
+  </component>
+  <component name="RunManager" selected="Application.Client">
     <configuration name="AESEchoClient" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
       <option name="MAIN_CLASS_NAME" value="org.aes.echo.client.AESEchoClient" />
       <module name="echo-client" />
@@ -95,8 +105,50 @@
         <option name="Make" enabled="true" />
       </method>
     </configuration>
+    <configuration name="Client" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
+      <option name="MAIN_CLASS_NAME" value="org.simple.mail.client.Client" />
+      <module name="Client" />
+      <extension name="coverage">
+        <pattern>
+          <option name="PATTERN" value="org.simple.mail.client.*" />
+          <option name="ENABLED" value="true" />
+        </pattern>
+      </extension>
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="RSAEchoServer" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
+      <option name="MAIN_CLASS_NAME" value="org.rsa.echo.server.RSAEchoServer" />
+      <module name="echo-server (1)" />
+      <extension name="coverage">
+        <pattern>
+          <option name="PATTERN" value="org.rsa.echo.server.*" />
+          <option name="ENABLED" value="true" />
+        </pattern>
+      </extension>
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="Server" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
+      <option name="MAIN_CLASS_NAME" value="org.simple.mail.server.Server" />
+      <module name="Server" />
+      <extension name="coverage">
+        <pattern>
+          <option name="PATTERN" value="org.simple.mail.server.*" />
+          <option name="ENABLED" value="true" />
+        </pattern>
+      </extension>
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
     <recent_temporary>
       <list>
+        <item itemvalue="Application.Client" />
+        <item itemvalue="Application.Server" />
+        <item itemvalue="Application.RSAEchoServer" />
         <item itemvalue="Application.AESEchoClient" />
         <item itemvalue="Application.AESEchoServer" />
       </list>
@@ -105,8 +157,8 @@
   <component name="SharedIndexes">
     <attachedChunks>
       <set>
-        <option value="bundled-jdk-9f38398b9061-39b83d9b5494-intellij.indexing.shared.core-IU-241.17011.79" />
-        <option value="bundled-js-predefined-1d06a55b98c1-0b3e54e931b4-JavaScript-IU-241.17011.79" />
+        <option value="bundled-jdk-9f38398b9061-39b83d9b5494-intellij.indexing.shared.core-IU-241.17890.1" />
+        <option value="bundled-js-predefined-1d06a55b98c1-0b3e54e931b4-JavaScript-IU-241.17890.1" />
       </set>
     </attachedChunks>
   </component>
@@ -120,7 +172,21 @@
       <updated>1713138178770</updated>
       <workItem from="1713138179841" duration="28000" />
       <workItem from="1717685573296" duration="947000" />
-      <workItem from="1717818453172" duration="8024000" />
+      <workItem from="1717818453172" duration="11982000" />
+      <workItem from="1717859669416" duration="9755000" />
+      <workItem from="1717925530550" duration="270000" />
+      <workItem from="1717925802360" duration="13543000" />
+      <workItem from="1718040461364" duration="10396000" />
+      <workItem from="1718095355127" duration="1202000" />
+      <workItem from="1718096561066" duration="18217000" />
+      <workItem from="1718216424778" duration="3677000" />
+      <workItem from="1718282600569" duration="703000" />
+      <workItem from="1718356412843" duration="5314000" />
+      <workItem from="1718461853266" duration="2512000" />
+      <workItem from="1718550041723" duration="649000" />
+      <workItem from="1718551054888" duration="1648000" />
+      <workItem from="1718905568556" duration="23000" />
+      <workItem from="1718905867205" duration="71000" />
     </task>
     <task id="LOCAL-00001" summary="Add README for origin of Shift Cipher">
       <option name="closed" value="true" />
@@ -130,7 +196,103 @@
       <option name="project" value="LOCAL" />
       <updated>1717821375277</updated>
     </task>
-    <option name="localTasksCounter" value="2" />
+    <task id="LOCAL-00002" summary="Configure for secure transfer messages for AES cipher">
+      <option name="closed" value="true" />
+      <created>1717832181022</created>
+      <option name="number" value="00002" />
+      <option name="presentableId" value="LOCAL-00002" />
+      <option name="project" value="LOCAL" />
+      <updated>1717832181022</updated>
+    </task>
+    <task id="LOCAL-00003" summary="Configure for secure transfer messages for RSA cipher">
+      <option name="closed" value="true" />
+      <created>1717874755710</created>
+      <option name="number" value="00003" />
+      <option name="presentableId" value="LOCAL-00003" />
+      <option name="project" value="LOCAL" />
+      <updated>1717874755710</updated>
+    </task>
+    <task id="LOCAL-00004" summary="Configure for secure transfer messages for RSA cipher">
+      <option name="closed" value="true" />
+      <created>1717874781674</created>
+      <option name="number" value="00004" />
+      <option name="presentableId" value="LOCAL-00004" />
+      <option name="project" value="LOCAL" />
+      <updated>1717874781674</updated>
+    </task>
+    <task id="LOCAL-00005" summary="Configure for validate data integrity">
+      <option name="closed" value="true" />
+      <created>1717926071618</created>
+      <option name="number" value="00005" />
+      <option name="presentableId" value="LOCAL-00005" />
+      <option name="project" value="LOCAL" />
+      <updated>1717926071618</updated>
+    </task>
+    <task id="LOCAL-00006" summary="Add guide to create RSA key pairs">
+      <option name="closed" value="true" />
+      <created>1717956228063</created>
+      <option name="number" value="00006" />
+      <option name="presentableId" value="LOCAL-00006" />
+      <option name="project" value="LOCAL" />
+      <updated>1717956228063</updated>
+    </task>
+    <task id="LOCAL-00007" summary="Refactor send mail">
+      <option name="closed" value="true" />
+      <created>1717956281556</created>
+      <option name="number" value="00007" />
+      <option name="presentableId" value="LOCAL-00007" />
+      <option name="project" value="LOCAL" />
+      <updated>1717956281556</updated>
+    </task>
+    <task id="LOCAL-00008" summary="Refactor send mail">
+      <option name="closed" value="true" />
+      <created>1717956558586</created>
+      <option name="number" value="00008" />
+      <option name="presentableId" value="LOCAL-00008" />
+      <option name="project" value="LOCAL" />
+      <updated>1717956558586</updated>
+    </task>
+    <task id="LOCAL-00009" summary="Refactor send mail">
+      <option name="closed" value="true" />
+      <created>1717956616768</created>
+      <option name="number" value="00009" />
+      <option name="presentableId" value="LOCAL-00009" />
+      <option name="project" value="LOCAL" />
+      <updated>1717956616768</updated>
+    </task>
+    <task id="LOCAL-00010" summary="Refactor send mail">
+      <option name="closed" value="true" />
+      <created>1717957932503</created>
+      <option name="number" value="00010" />
+      <option name="presentableId" value="LOCAL-00010" />
+      <option name="project" value="LOCAL" />
+      <updated>1717957932503</updated>
+    </task>
+    <task id="LOCAL-00011" summary="Generate cert from openssl">
+      <option name="closed" value="true" />
+      <created>1718129982618</created>
+      <option name="number" value="00011" />
+      <option name="presentableId" value="LOCAL-00011" />
+      <option name="project" value="LOCAL" />
+      <updated>1718129982618</updated>
+    </task>
+    <task id="LOCAL-00012" summary="Encrypt send mail">
+      <option name="closed" value="true" />
+      <created>1718130046238</created>
+      <option name="number" value="00012" />
+      <option name="presentableId" value="LOCAL-00012" />
+      <option name="project" value="LOCAL" />
+      <updated>1718130046238</updated>
+    </task>
+    <task id="LOCAL-00013" summary="Try to decrypt email">
+      <option name="closed" value="true" />
+      <created>1718134811047</created>
+      <option name="number" value="00013" />
+      <option name="presentableId" value="LOCAL-00013" />
+      <option name="project" value="LOCAL" />
+      <updated>1718134811047</updated>
+    </task>
+    <option name="localTasksCounter" value="14" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -149,7 +311,15 @@
   </component>
   <component name="VcsManagerConfiguration">
     <MESSAGE value="Add README for origin of Shift Cipher" />
-    <option name="LAST_COMMIT_MESSAGE" value="Add README for origin of Shift Cipher" />
+    <MESSAGE value="Configure for secure transfer messages for AES cipher" />
+    <MESSAGE value="Configure for secure transfer messages for RSA cipher" />
+    <MESSAGE value="Configure for validate data integrity" />
+    <MESSAGE value="Add guide to create RSA key pairs" />
+    <MESSAGE value="Refactor send mail" />
+    <MESSAGE value="Generate cert from openssl" />
+    <MESSAGE value="Encrypt send mail" />
+    <MESSAGE value="Try to decrypt email" />
+    <option name="LAST_COMMIT_MESSAGE" value="Try to decrypt email" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
@@ -174,7 +344,42 @@
           <line>52</line>
           <option name="timeStamp" value="5" />
         </line-breakpoint>
+        <line-breakpoint enabled="true" type="java-line">
+          <url>file://$PROJECT_DIR$/../rsa-cipher/echo-server/src/main/java/org/rsa/echo/util/RSAUtil.java</url>
+          <line>29</line>
+          <option name="timeStamp" value="8" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="java-line">
+          <url>file://$PROJECT_DIR$/../simple-mail/Server/src/main/java/org/simple/mail/server/RequestProcessor.java</url>
+          <line>169</line>
+          <option name="timeStamp" value="11" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="java-line">
+          <url>file://$PROJECT_DIR$/../simple-mail/Server/src/main/java/org/simple/mail/server/RequestProcessor.java</url>
+          <line>163</line>
+          <option name="timeStamp" value="16" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="java-line">
+          <url>file://$PROJECT_DIR$/../simple-mail/Server/src/main/java/org/simple/mail/server/RequestProcessor.java</url>
+          <line>155</line>
+          <option name="timeStamp" value="17" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="java-line">
+          <url>file://$PROJECT_DIR$/../simple-mail/Server/src/main/java/org/simple/mail/server/RequestProcessor.java</url>
+          <line>136</line>
+          <option name="timeStamp" value="21" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="java-line">
+          <url>file://$PROJECT_DIR$/../simple-mail/Client/src/main/java/org/simple/mail/client/UserProcessor.java</url>
+          <line>200</line>
+          <option name="timeStamp" value="33" />
+        </line-breakpoint>
       </breakpoints>
     </breakpoint-manager>
+  </component>
+  <component name="com.intellij.coverage.CoverageDataManagerImpl">
+    <SUITE FILE_PATH="coverage/aes_cipher$Client.ic" NAME="Client Coverage Results" MODIFIED="1718216846891" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="idea" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="true">
+      <FILTER>org.simple.mail.client.*</FILTER>
+    </SUITE>
   </component>
 </project>

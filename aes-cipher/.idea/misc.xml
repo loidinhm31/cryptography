@@ -5,10 +5,10 @@
     <option name="originalFiles">
       <list>
         <option value="$PROJECT_DIR$/pom.xml" />
-        <option value="$PROJECT_DIR$/../hmac/pom.xml" />
         <option value="$PROJECT_DIR$/../rsa-cipher/pom.xml" />
         <option value="$PROJECT_DIR$/../shift-ciper/pom.xml" />
         <option value="$PROJECT_DIR$/../simple-mail/pom.xml" />
+        <option value="$PROJECT_DIR$/../data-integrity/pom.xml" />
       </list>
     </option>
   </component>

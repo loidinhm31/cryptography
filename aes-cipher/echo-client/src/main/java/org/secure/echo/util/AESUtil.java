@@ -54,7 +54,7 @@ public class AESUtil {
         return out;
     }
 
-    public String encryptString(SecretKey key, String plainText) throws UnsupportedEncodingException, GeneralSecurityException {
+    public String encryptString(SecretKey key, String plainText) throws GeneralSecurityException {
         String cipherText;
         cipherText = Base64.toBase64String(encryptBytes(key, plainText.getBytes(StandardCharsets.UTF_8)));
         return cipherText;

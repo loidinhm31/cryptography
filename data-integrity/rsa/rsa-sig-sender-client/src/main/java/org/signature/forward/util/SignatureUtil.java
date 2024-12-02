@@ -51,7 +51,7 @@ public class SignatureUtil {
     }
 
     public RSAKeyParameters getPublicKey(String certFile) throws IOException {
-        RSAKeyParameters publicKey = null;
+        RSAKeyParameters publicKey;
         FileReader reader = new FileReader(certFile);
         PEMParser pemParser = new PEMParser(reader);
         X509CertificateHolder certificate;
@@ -62,7 +62,7 @@ public class SignatureUtil {
         return publicKey;
     }
 
-    public byte[] signBytes(RSAKeyParameters key, byte inputBytes[]) throws DataLengthException, CryptoException {
+    public byte[] signBytes(RSAKeyParameters key, byte[] inputBytes) throws DataLengthException, CryptoException {
         RSADigestSigner signer = new RSADigestSigner(new SHA256Digest());
         signer.init(true, key);
         signer.update(inputBytes, 0, inputBytes.length);

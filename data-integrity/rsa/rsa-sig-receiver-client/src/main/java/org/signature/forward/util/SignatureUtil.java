@@ -21,6 +21,8 @@ import org.bouncycastle.util.encoders.Base64;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
+import java.nio.charset.StandardCharsets;
+import java.util.Objects;
 
 public class SignatureUtil {
     public RSAKeyParameters getPrivateKey(String keyFile, String password)
@@ -39,14 +41,14 @@ public class SignatureUtil {
         } else if (keyPair instanceof PrivateKeyInfo) {
             keyInfo = (PrivateKeyInfo) keyPair;
         }
-        privateKey = (RSAKeyParameters) PrivateKeyFactory.createKey(keyInfo);
+        if (Objects.nonNull(keyInfo)) privateKey = (RSAKeyParameters) PrivateKeyFactory.createKey(keyInfo);
 
         pemParser.close();
         return privateKey;
     }
 
     public RSAKeyParameters getPublicKey(String certFile) throws IOException {
-        RSAKeyParameters publicKey = null;
+        RSAKeyParameters publicKey;
         FileReader reader = new FileReader(certFile);
         PEMParser pemParser = new PEMParser(reader);
         X509CertificateHolder certificate;
@@ -64,8 +66,8 @@ public class SignatureUtil {
         return signer.generateSignature();
     }
 
-    public String signString(RSAKeyParameters key, String input) throws DataLengthException, CryptoException, UnsupportedEncodingException {
-        byte[] inputBytes = input.getBytes("UTF-8");
+    public String signString(RSAKeyParameters key, String input) throws DataLengthException, CryptoException {
+        byte[] inputBytes = input.getBytes(StandardCharsets.UTF_8);
         byte[] outputBytes = signBytes(key, inputBytes);
         return Base64.toBase64String(outputBytes);
     }
@@ -77,8 +79,8 @@ public class SignatureUtil {
         return verifier.verifySignature(signature);
     }
 
-    public boolean verifyString(RSAKeyParameters key, String input, String signature) throws UnsupportedEncodingException {
-        byte[] inputBytes = input.getBytes("UTF-8");
+    public boolean verifyString(RSAKeyParameters key, String input, String signature) {
+        byte[] inputBytes = input.getBytes(StandardCharsets.UTF_8);
         byte[] sigBytes = Base64.decode(signature);
         return verifyBytes(key, inputBytes, sigBytes);
     }
