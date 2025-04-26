@@ -22,6 +22,7 @@ public class UserProcessor {
     private static final String SIG_HEADER = "SIG:";
     private static final String KEY = "KEY:";
     private static final String BODY = "BODY:";
+    private static final int MAX_RETRIES = 3;
 
     @Setter
     private Request request;
@@ -81,6 +82,11 @@ public class UserProcessor {
             channel.sendRequest(new Request(Command.END_MAIL));
             response = channel.receiveResponse();
             System.out.println(response.craftToString());
+        } else {
+            System.out.println("Email encryption failed.");
+            channel.sendRequest(new Request(Command.END_MAIL));
+            response = channel.receiveResponse();
+            System.out.println(response.craftToString());
         }
     }
 
@@ -113,30 +119,57 @@ public class UserProcessor {
         // Get keys
         RSAUtil rsaCryptor = new RSAUtil();
 
-        System.out.println("Path to recipient's public key:");
-        String recipientPublicKeyPath = user.readLine();
-        RSAKeyParameters recipientPublicKey;
-        try {
-            recipientPublicKey = rsaCryptor.getPublicKey(recipientPublicKeyPath);
-        } catch (IOException e) {
-            System.out.println("Error: File not found.");
-            return Optional.empty();
+        // Try to get recipient's public key
+        RSAKeyParameters recipientPublicKey = null;
+        int attempts = 0;
+
+        while (attempts < MAX_RETRIES && Objects.isNull(recipientPublicKey)) {
+            System.out.println("Path to recipient's public key" + (attempts > 0 ? " (attempt " + (attempts + 1) + "/" + MAX_RETRIES + ")" : "") + ":");
+            String recipientPublicKeyPath = user.readLine();
+
+            try {
+                recipientPublicKey = rsaCryptor.getPublicKey(recipientPublicKeyPath);
+            } catch (IOException e) {
+                attempts++;
+                if (attempts < MAX_RETRIES) {
+                    System.out.println("Error: File not found.");
+                } else {
+                    System.out.println("Error: File not found. Maximum retry attempts reached.");
+                    return Optional.empty();
+                }
+            }
         }
 
-        System.out.println("Path to your private key:");
-        String userPrivateKeyPath = user.readLine();
+        // Try to get private key
+        RSAKeyParameters userPrivateKey = null;
+        attempts = 0;
 
-        System.out.println("Password for using private key:");
-        String privateKeyPassword = user.readLine();
-        RSAKeyParameters userPrivateKey;
-        try {
-            userPrivateKey = rsaCryptor.getPrivateKey(userPrivateKeyPath, privateKeyPassword);
-        } catch (IOException e1) {
-            System.out.println("Error: File not found.");
-            return Optional.empty();
-        } catch (DecryptPrivateKeyInfoException e2) {
-            System.out.println("Cannot get private key. Maybe wrong password.");
-            return Optional.empty();
+        while (attempts < MAX_RETRIES && Objects.isNull(userPrivateKey)) {
+            System.out.println("Path to your private key" + (attempts > 0 ? " (attempt " + (attempts + 1) + "/" + MAX_RETRIES + ")" : "") + ":");
+            String userPrivateKeyPath = user.readLine();
+
+            System.out.println("Password for using private key:");
+            String privateKeyPassword = user.readLine();
+
+            try {
+                userPrivateKey = rsaCryptor.getPrivateKey(userPrivateKeyPath, privateKeyPassword);
+            } catch (IOException e1) {
+                attempts++;
+                if (attempts < MAX_RETRIES) {
+                    System.out.println("Error: File not found.");
+                } else {
+                    System.out.println("Error: File not found. Maximum retry attempts reached.");
+                    return Optional.empty();
+                }
+            } catch (DecryptPrivateKeyInfoException e2) {
+                attempts++;
+                if (attempts < MAX_RETRIES) {
+                    System.out.println("Cannot get private key. Maybe wrong password.");
+                } else {
+                    System.out.println("Cannot get private key. Maximum retry attempts reached.");
+                    return Optional.empty();
+                }
+            }
         }
 
         return Optional.of(encryptEmail(emailContent, rsaCryptor, recipientPublicKey, userPrivateKey));

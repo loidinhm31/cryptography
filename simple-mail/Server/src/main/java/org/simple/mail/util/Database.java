@@ -64,22 +64,19 @@ public class Database {
 
     public ArrayList<Mail> retrieveMailList(String recipient) {
         ArrayList<Mail> list = new ArrayList<Mail>();
-        //String query = "SELECT id, sender, recipient, date FROM tbl_mails WHERE recipient = ?;";
         String query = "SELECT * FROM tbl_mails WHERE recipient = ?;";
         try (PreparedStatement selectStmt = conn.prepareStatement(query)
         ) {
             selectStmt.setString(1, recipient);
             ResultSet rs = selectStmt.executeQuery();
-            if (rs.first()) {
+
+            while (rs.next()) {
                 Mail mail = new Mail();
-                do {
-                    mail = new Mail();
-                    mail.setId(rs.getInt("id"));
-                    mail.setSender(rs.getString("sender"));
-                    mail.setRecipient(rs.getString("recipient"));
-                    mail.setTime(rs.getTimestamp("date"));
-                    list.add(mail);
-                } while (rs.next());
+                mail.setId(rs.getInt("id"));
+                mail.setSender(rs.getString("sender"));
+                mail.setRecipient(rs.getString("recipient"));
+                mail.setTime(rs.getTimestamp("date"));
+                list.add(mail);
             }
         } catch (SQLException e) {
             e.printStackTrace();

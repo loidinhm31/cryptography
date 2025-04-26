@@ -89,7 +89,7 @@ public class RequestProcessor {
     public void doList() {
         response = new Response();
         if (session.getStatus() == Session.USER_IDENTIFIED) {
-            ArrayList<Mail> list = new ArrayList<Mail>();
+            ArrayList<Mail> list;
             list = db.retrieveMailList(session.getUser());
             StringBuilder result = new StringBuilder();
             int size = list.size();
@@ -158,9 +158,16 @@ public class RequestProcessor {
             mail.setBody(builder.toString());
         } else {
             response = new Response();
-            response.setContent(Response.SUCCESS, Response.DELIVERY_SUCCESS);
-            db.insertMail(mail);
-            session.setStatus(Session.USER_IDENTIFIED);
+
+            // Check encrypted mail
+            if (mail.getBody().isEmpty()) {
+                response.setContent(Response.ERROR, Response.BAD_SEQUENCE);
+                session.setStatus(Session.USER_IDENTIFIED);
+            } else {
+                response.setContent(Response.SUCCESS, Response.DELIVERY_SUCCESS);
+                db.insertMail(mail);
+                session.setStatus(Session.USER_IDENTIFIED);
+            }
         }
     }
 }
