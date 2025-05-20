@@ -30,7 +30,7 @@ public class AESUtil {
         return new KeyParameter(byteArr);
     }
 
-    public byte[] encryptBytes(KeyParameter key, byte[] plainBytes) throws InvalidCipherTextException {
+    private byte[] encryptBytes(KeyParameter key, byte[] plainBytes) throws InvalidCipherTextException {
         PaddedBufferedBlockCipher encryptCipher = new PaddedBufferedBlockCipher(
                 CBCBlockCipher.newInstance(AESEngine.newInstance())
         );
@@ -55,7 +55,7 @@ public class AESUtil {
         return Base64.toBase64String(encryptBytes(key, plainText.getBytes(StandardCharsets.UTF_8)));
     }
 
-    public byte[] decryptBytes(KeyParameter key, byte[] cipherBytes) throws InvalidCipherTextException {
+    private byte[] decryptBytes(KeyParameter key, byte[] cipherBytes) throws InvalidCipherTextException {
         PaddedBufferedBlockCipher decryptCipher = new PaddedBufferedBlockCipher(
                 CBCBlockCipher.newInstance(AESEngine.newInstance())
         );

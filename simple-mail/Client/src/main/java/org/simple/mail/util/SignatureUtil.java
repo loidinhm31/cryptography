@@ -10,7 +10,7 @@ import org.bouncycastle.util.encoders.Base64;
 import java.nio.charset.StandardCharsets;
 
 public class SignatureUtil {
-    public byte[] signBytes(RSAKeyParameters key, byte[] inputBytes) throws DataLengthException, CryptoException {
+    private byte[] signBytes(RSAKeyParameters key, byte[] inputBytes) throws DataLengthException, CryptoException {
         RSADigestSigner signer = new RSADigestSigner(new SHA256Digest());
         signer.init(true, key);
         signer.update(inputBytes, 0, inputBytes.length);
@@ -23,7 +23,7 @@ public class SignatureUtil {
         return Base64.toBase64String(outputBytes);
     }
 
-    public boolean verifyBytes(RSAKeyParameters key, byte[] inputBytes, byte[] signature) {
+    private boolean verifyBytes(RSAKeyParameters key, byte[] inputBytes, byte[] signature) {
         RSADigestSigner verifier = new RSADigestSigner(new SHA256Digest());
         verifier.init(false, key);
         verifier.update(inputBytes, 0, inputBytes.length);
